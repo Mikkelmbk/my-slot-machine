@@ -115,6 +115,10 @@
 		height:30px;
 		width:30px;
 	}
+
+	.hold-rulle1,.hold-rulle2,.hold-rulle3{
+		display:none;
+	}
 	
 }
 
@@ -146,12 +150,14 @@ body{
 	grid-template-columns: 1fr 1fr 1fr;
 	grid-gap: 10px;
 	border-radius:10px;
+	position:relative;
 }
 
 .rulle1,.rulle2,.rulle3{
 	overflow:hidden;
 	border:2px solid #f8f8ff;
 	border-radius:10px;
+	/* position:relative; */
 }
 
 audio{
@@ -240,6 +246,44 @@ audio{
 .spil-resultat-image{
 	height:30px;
 	width:30px;
+}
+
+.hold-rulle1{
+	position:absolute;
+	left:90px;
+	top:5px;
+	padding: 4px 30px;
+	border:none;
+	border-radius:3px;
+	background-color:rgb(223, 61, 61);
+	color:white;
+	outline: none;
+	cursor:pointer;
+}
+.hold-rulle2{
+	position:absolute;
+	left:50%;
+	top:5px;
+	transform: translate(-50%,0);
+	padding: 4px 30px;
+	border:none;
+	border-radius:3px;
+	background-color:rgb(223, 61, 61);
+	color:white;
+	outline: none;
+	cursor:pointer;
+}
+.hold-rulle3{
+	position:absolute;
+	right:90px;
+	top:5px;
+	padding: 4px 30px;
+	border:none;
+	border-radius:3px;
+	background-color:rgb(223, 61, 61);
+	color:white;
+	outline: none;
+	cursor:pointer;
 }
 
 }

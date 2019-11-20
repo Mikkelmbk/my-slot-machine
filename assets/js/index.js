@@ -13,6 +13,14 @@ let spilResultat = document.querySelector('.spil-resultat');
 let freeSpinsDisplayElement = document.querySelector('.free-spins');
 let gameCountDisplayElement = document.querySelector('.game-count');
 let audioElement = document.querySelector('audio');
+
+let holdRulle1Btn = document.querySelector('.hold-rulle1');
+let holdRulle1Boolean = false;
+let holdRulle2Btn = document.querySelector('.hold-rulle2');
+let holdRulle2Boolean = false;
+let holdRulle3Btn = document.querySelector('.hold-rulle3');
+let holdRulle3Boolean = false;
+
 let figurHøjde = Math.floor(rulle1Displayed.offsetHeight / 3);
 let mønter = 200;
 let allowSpin = 10;
@@ -178,6 +186,8 @@ function makeRulle1() {
         rulleFigur.classList.add('rulle-figur');
         rulle1Overflowing.appendChild(rulleFigur);
     });
+
+
 }
 
 makeRulle2();
@@ -262,6 +272,45 @@ autoBtnElement.addEventListener('click', () => {
     ;
 });
 
+holdRulle1Btn.addEventListener('click', (event) => {
+    if (!holdRulle1Boolean) {
+        holdRulle1Btn.style.backgroundColor = "green";
+        holdRulle1Btn.innerHTML = "Release";
+        holdRulle1Boolean = true;
+    }
+    else {
+        holdRulle1Btn.style.backgroundColor = "rgb(223, 61, 61)";
+        holdRulle1Btn.innerHTML = "Hold";
+        holdRulle1Boolean = false;
+    }
+});
+
+holdRulle2Btn.addEventListener('click', (event) => {
+    if (!holdRulle2Boolean) {
+        holdRulle2Btn.style.backgroundColor = "green";
+        holdRulle2Btn.innerHTML = "Release";
+        holdRulle2Boolean = true;
+    }
+    else {
+        holdRulle2Btn.style.backgroundColor = "rgb(223, 61, 61)";
+        holdRulle2Btn.innerHTML = "Hold";
+        holdRulle2Boolean = false;
+    }
+});
+
+holdRulle3Btn.addEventListener('click', (event) => {
+    if (!holdRulle3Boolean) {
+        holdRulle3Btn.style.backgroundColor = "green";
+        holdRulle3Btn.innerHTML = "Release";
+        holdRulle3Boolean = true;
+    }
+    else {
+        holdRulle3Btn.style.backgroundColor = "rgb(223, 61, 61)";
+        holdRulle3Btn.innerHTML = "Hold";
+        holdRulle3Boolean = false;
+    }
+});
+
 function userInitiatedMachine() {
     if (mønter >= allowSpin || freeSpinCount != 0) {
         gameCount++;
@@ -270,9 +319,17 @@ function userInitiatedMachine() {
         audioElement.pause();
         audioElement.currentTime = 0;
         startBtnElement.disabled = true;
-        makeRulle1();
-        makeRulle2();
-        makeRulle3();
+
+        if (!holdRulle1Boolean) {
+            makeRulle1();
+        }
+        if (!holdRulle2Boolean) {
+            makeRulle2();
+        }
+        if (!holdRulle3Boolean) {
+            makeRulle3();
+        }
+
         if (freeSpinCount == 0) {
             mønter -= allowSpin;
         }
@@ -316,77 +373,83 @@ function randomIntFromInterval(min, max) {
 
 function startSpinning(Number1, Number2, Number3) {
     setTimeout(() => {
-        rulle1Overflowing.style.transition = "all 3s ease-out";
-        rulle2Overflowing.style.transition = "all 4s ease-out";
-        rulle3Overflowing.style.transition = "all 5s ease-out";
-        rulle1Overflowing.style.marginTop = `${-Number1 * figurHøjde}px`;
-        rulle2Overflowing.style.marginTop = `${-Number2 * figurHøjde}px`;
-        rulle3Overflowing.style.marginTop = `${-Number3 * figurHøjde}px`;
+        // if(!holdRulle1Boolean || !holdRulle2Boolean || !holdRulle3Boolean)
+        if (holdRulle1Boolean) {
+            rulle1Overflowing.style.transition = "unset";
+        }
+        else {
+            rulle1Overflowing.style.transition = "all 3s ease-out";
+            rulle1Overflowing.style.marginTop = `${-Number1 * figurHøjde}px`;
+        }
+        if (holdRulle2Boolean) {
+            rulle2Overflowing.style.transition = "unset";
+        }
+        else {
+            rulle2Overflowing.style.transition = "all 4s ease-out";
+            rulle2Overflowing.style.marginTop = `${-Number2 * figurHøjde}px`;
+        }
+        if (holdRulle3Boolean) {
+            rulle3Overflowing.style.transition = "unset";
+        }
+        else {
+            rulle3Overflowing.style.transition = "all 5s ease-out";
+            rulle3Overflowing.style.marginTop = `${-Number3 * figurHøjde}px`;
+        }
+
     }, 15);
 }
 
 rulle1Overflowing.addEventListener('transitionend', () => {
     rulle1RamtFigur = rullerArray[0][rulle1Index + 1].name;
-    // console.log(rullerArray[0]);
 });
 
 rulle2Overflowing.addEventListener('transitionend', () => {
     rulle2RamtFigur = rullerArray[1][rulle2Index + 1].name;
 });
 
-rulle2Overflowing.addEventListener('transitionend', () => {
+rulle3Overflowing.addEventListener('transitionend', () => {
     rulle3RamtFigur = rullerArray[2][rulle3Index + 1].name;
-    winOrLose(rulle1RamtFigur, rulle2RamtFigur, rulle3RamtFigur);
+    winOrLose();
     audioElement.pause();
     audioElement.currentTime = 0;
 });
 
-function winOrLose(figur1, figur2, figur3) {
-    if (figur1 === figur2 && figur2 === figur3) {
-        setTimeout(() => {
-            winCount++;
-            startBtnElement.disabled = false;
-            mønter += rullerArray[0][rulle1Index + 1].value;
-            spilResultat.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rullerArray[1][rulle2Index + 1].file}"> og vandt ${rullerArray[0][rulle1Index + 1].value}`;
-            audioElement.play();
-            audioElement.volume = 0.1;
-            updateCoinAndSpinCount();
-        }, 1000);
+function winOrLose() {
+    if (rullerArray[0][rulle1Index + 1].name === rullerArray[1][rulle2Index + 1].name && rullerArray[1][rulle2Index + 1].name === rullerArray[2][rulle3Index + 1].name) {
+        winCount++;
+        startBtnElement.disabled = false;
+        mønter += rullerArray[0][rulle1Index + 1].value;
+        spilResultat.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rullerArray[1][rulle2Index + 1].file}"> og vandt ${rullerArray[0][rulle1Index + 1].value}`;
+        audioElement.play();
+        audioElement.volume = 0.1;
+        updateCoinAndSpinCount();
     }
 
     else if (rullerArray[0][rulle1Index].name === rullerArray[1][rulle2Index + 1].name && rullerArray[1][rulle2Index + 1].name === rullerArray[2][rulle3Index + 2].name) {
-        setTimeout(() => {
-            winCount++;
-            startBtnElement.disabled = false;
-            freeSpinTracker();
-            spilResultat.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rullerArray[1][rulle2Index + 1].file}"> på tværs, Du har ${freeSpinCount} free spins`;
-            updateCoinAndSpinCount();
-        }, 1000);
+        winCount++;
+        startBtnElement.disabled = false;
+        freeSpinTracker();
+        spilResultat.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rullerArray[1][rulle2Index + 1].file}"> på tværs, Du har ${freeSpinCount} free spins`;
+        updateCoinAndSpinCount();
     }
 
     else if (rullerArray[0][rulle1Index + 2].name === rullerArray[1][rulle2Index + 1].name && rullerArray[1][rulle2Index + 1].name === rullerArray[2][rulle3Index].name) {
-        setTimeout(() => {
-            winCount++;
-            startBtnElement.disabled = false;
-            freeSpinTracker();
-            spilResultat.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rullerArray[1][rulle2Index + 1].file}"> på tværs, Du har ${freeSpinCount} free spins`;
-            updateCoinAndSpinCount();
-        }, 1000);
+        winCount++;
+        startBtnElement.disabled = false;
+        freeSpinTracker();
+        spilResultat.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rullerArray[1][rulle2Index + 1].file}"> på tværs, Du har ${freeSpinCount} free spins`;
+        updateCoinAndSpinCount();
     }
 
     else {
-        setTimeout(() => {
-            startBtnElement.disabled = false;
-            spilResultat.innerHTML = "Du vandt ikke, Prøv igen!";
-        }, 1000);
+        startBtnElement.disabled = false;
+        spilResultat.innerHTML = "Du vandt ikke, Prøv igen!";
     }
-    setTimeout(() => {
-        currentlySpinning = false;
-        if (gameCount / winCount != Infinity) {
-            winRateDisplayElement.innerHTML = `Win-rate: ${((winCount / gameCount) * 100).toFixed(1)}%`;
-        }
-        gameCountDisplayElement.innerHTML = `T: ${gameCount} | L: ${(gameCount - winCount)} | W: ${winCount}`;
-    }, 1000);
+    currentlySpinning = false;
+    if (gameCount / winCount != Infinity) {
+        winRateDisplayElement.innerHTML = `Win-rate: ${((winCount / gameCount) * 100).toFixed(1)}%`;
+    }
+    gameCountDisplayElement.innerHTML = `T: ${gameCount} | L: ${(gameCount - winCount)} | W: ${winCount}`;
 }
 
 function freeSpinTracker() {
@@ -406,3 +469,4 @@ function freeSpinTracker() {
         freeSpinCount += 25;
     }
 }
+
