@@ -25,7 +25,7 @@ let autoSpinActive = false;
 let autoSpinInterval;
 updateCoinAndSpinCount();
 winRateDisplayElement.innerHTML = "Win-rate: 0%";
-gameCountDisplayElement.innerHTML = `L: 0 | W: 0`;
+gameCountDisplayElement.innerHTML = `T: 0 | L: 0 | W: 0`;
 
 
 // let Data = [
@@ -384,7 +384,7 @@ function winOrLose(figur1, figur2, figur3) {
         if (gameCount / winCount != Infinity) {
             winRateDisplayElement.innerHTML = `Win-rate: ${((winCount / gameCount) * 100).toFixed(1)}%`;
         }
-        gameCountDisplayElement.innerHTML = `L: ${(gameCount - winCount)} | W: ${winCount}`;
+        gameCountDisplayElement.innerHTML = `T: ${gameCount} | L: ${(gameCount - winCount)} | W: ${winCount}`;
     }, 1000);
 }
 
