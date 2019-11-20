@@ -119,9 +119,14 @@ let X = tempArray.length;
 let rulle1Index;
 let rulle2Index;
 let rulle3Index;
-let rulle1RamtFigur;
-let rulle2RamtFigur;
-let rulle3RamtFigur;
+let rulle1VenstreTop;
+let rulle1VenstreCenter;
+let rulle1VenstreBund;
+let rulle2Center;
+let rulle3HøjreTop;
+let rulle3HøjreCenter;
+let rulle3HøjreBund;
+
 
 Data.sort((a, b) => (b.rarity > a.rarity) ? 1 : -1); // If b.rarity is bigger than a.rarity, return 1 to the sort function, else return -1
 Data.forEach((figurObjekt) => {
@@ -400,44 +405,54 @@ function startSpinning(Number1, Number2, Number3) {
 }
 
 rulle1Overflowing.addEventListener('transitionend', () => {
-    rulle1RamtFigur = rullerArray[0][rulle1Index + 1].name;
+    rulle1VenstreTop = rullerArray[0][rulle1Index];
+    rulle1VenstreCenter = rullerArray[0][rulle1Index + 1];
+    rulle1VenstreBund = rullerArray[0][rulle1Index + 2];
+    if(holdRulle2Boolean && holdRulle3Boolean){
+        winOrLose();
+    }
 });
 
 rulle2Overflowing.addEventListener('transitionend', () => {
-    rulle2RamtFigur = rullerArray[1][rulle2Index + 1].name;
+    rulle2Center = rullerArray[1][rulle2Index + 1];
+    if(holdRulle3Boolean){
+        winOrLose();
+    }
 });
 
 rulle3Overflowing.addEventListener('transitionend', () => {
-    rulle3RamtFigur = rullerArray[2][rulle3Index + 1].name;
+    rulle3HøjreTop = rullerArray[2][rulle3Index];
+    rulle3HøjreCenter = rullerArray[2][rulle3Index + 1];
+    rulle3HøjreBund = rullerArray[2][rulle3Index + 2];
     winOrLose();
     audioElement.pause();
     audioElement.currentTime = 0;
 });
 
 function winOrLose() {
-    if (rullerArray[0][rulle1Index + 1].name === rullerArray[1][rulle2Index + 1].name && rullerArray[1][rulle2Index + 1].name === rullerArray[2][rulle3Index + 1].name) {
+    if (rulle1VenstreCenter.name === rulle2Center.name && rulle2Center.name === rulle3HøjreCenter.name) {
         winCount++;
         startBtnElement.disabled = false;
-        mønter += rullerArray[0][rulle1Index + 1].value;
-        spilResultat.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rullerArray[1][rulle2Index + 1].file}"> og vandt ${rullerArray[0][rulle1Index + 1].value}`;
+        mønter += rulle1VenstreCenter.value;
+        spilResultat.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rulle2Center.file}"> og vandt ${rulle1VenstreCenter.value}`;
         audioElement.play();
         audioElement.volume = 0.1;
         updateCoinAndSpinCount();
     }
 
-    else if (rullerArray[0][rulle1Index].name === rullerArray[1][rulle2Index + 1].name && rullerArray[1][rulle2Index + 1].name === rullerArray[2][rulle3Index + 2].name) {
+    else if (rulle1VenstreTop.name === rulle2Center.name && rulle2Center.name === rulle3HøjreBund.name) {
         winCount++;
         startBtnElement.disabled = false;
         freeSpinTracker();
-        spilResultat.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rullerArray[1][rulle2Index + 1].file}"> på tværs, Du har ${freeSpinCount} free spins`;
+        spilResultat.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rulle2Center.file}"> på tværs, Du har ${freeSpinCount} free spins`;
         updateCoinAndSpinCount();
     }
 
-    else if (rullerArray[0][rulle1Index + 2].name === rullerArray[1][rulle2Index + 1].name && rullerArray[1][rulle2Index + 1].name === rullerArray[2][rulle3Index].name) {
+    else if (rulle1VenstreBund.name === rulle2Center.name && rulle2Center.name === rulle3HøjreTop.name) {
         winCount++;
         startBtnElement.disabled = false;
         freeSpinTracker();
-        spilResultat.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rullerArray[1][rulle2Index + 1].file}"> på tværs, Du har ${freeSpinCount} free spins`;
+        spilResultat.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rulle2Center.file}"> på tværs, Du har ${freeSpinCount} free spins`;
         updateCoinAndSpinCount();
     }
 
@@ -453,19 +468,19 @@ function winOrLose() {
 }
 
 function freeSpinTracker() {
-    if (rullerArray[1][rulle2Index + 1].name == "melon" || rullerArray[1][rulle2Index + 1].name == "appelsin") {
+    if (rulle2Center.name == "melon" || rulle2Center.name == "appelsin") {
         freeSpinCount += 2;
     }
-    if (rullerArray[1][rulle2Index + 1].name == "blomme") {
+    if (rulle2Center.name == "blomme") {
         freeSpinCount += 3;
     }
-    if (rullerArray[1][rulle2Index + 1].name == "bar") {
+    if (rulle2Center.name == "bar") {
         freeSpinCount += 5;
     }
-    if (rullerArray[1][rulle2Index + 1].name == "7") {
+    if (rulle2Center.name == "7") {
         freeSpinCount += 10;
     }
-    if (rullerArray[1][rulle2Index + 1].name == "diamant") {
+    if (rulle2Center.name == "diamant") {
         freeSpinCount += 25;
     }
 }
