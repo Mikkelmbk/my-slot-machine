@@ -326,7 +326,7 @@ function startSpinning(Number1, Number2, Number3) {
 
 rulle1Overflowing.addEventListener('transitionend', () => {
     rulle1RamtFigur = rullerArray[0][rulle1Index + 1].name;
-    console.log(rullerArray[0]);
+    // console.log(rullerArray[0]);
 });
 
 rulle2Overflowing.addEventListener('transitionend', () => {
