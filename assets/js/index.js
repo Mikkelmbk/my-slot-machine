@@ -295,13 +295,14 @@ function userInitiatedMachine() {
         spilResultat.innerHTML = "Indsæt flere penge for at spille videre";
         setTimeout(() => {
             møntIndkast.focus();
+            clearInterval(autoSpinInterval);
         }, 10);
     }
     updateCoinAndSpinCount();
 }
 
 function updateCoinAndSpinCount() {
-    mønterElement.innerHTML = mønter.toString();
+    mønterElement.innerHTML = `Coin: ${mønter.toString()}`;
     if (freeSpinCount <= 1) {
         freeSpinsDisplayElement.innerHTML = `Free Spin: ${freeSpinCount.toString()}`;
         return;
