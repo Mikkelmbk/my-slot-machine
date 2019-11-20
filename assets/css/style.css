@@ -10,7 +10,7 @@
 		max-height:100vh;
 	}
 	
-	.win-rate,.auto-btn,.game-count{
+	.win-rate,.start-btn,.game-count{
 		display:none;
 	}
 	
@@ -59,7 +59,7 @@
 		color: #ffd700;
 	}
 
-	.betal-mønter,.start-btn{
+	.betal-mønter,.auto-btn{
 		border:none;
 		color:white;
 		background-color:#298eea;
