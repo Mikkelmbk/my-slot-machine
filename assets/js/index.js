@@ -1,4 +1,3 @@
-"use strict";
 let rulle1Overflowing = document.querySelector('.rulle1-overflowing');
 let rulle2Overflowing = document.querySelector('.rulle2-overflowing');
 let rulle3Overflowing = document.querySelector('.rulle3-overflowing');
@@ -27,6 +26,8 @@ let autoSpinInterval;
 updateCoinAndSpinCount();
 winRateDisplayElement.innerHTML = "Win-rate: 0%";
 gameCountDisplayElement.innerHTML = "Game Count: 0";
+
+
 // let Data = [
 // 	{
 // 		"name": "appelsin",
@@ -97,12 +98,15 @@ let Data = [
         "value": 50
     }
 ];
+
 let tempArray = [];
+
 for (let i = 0; i < Data.length; i++) {
     for (let r = Data[i].rarity; r > 0; r--) {
         tempArray.push(Data[i]);
     }
 }
+
 let X = tempArray.length;
 let rulle1Index;
 let rulle2Index;
@@ -110,6 +114,7 @@ let rulle3Index;
 let rulle1RamtFigur;
 let rulle2RamtFigur;
 let rulle3RamtFigur;
+
 Data.sort((a, b) => (b.rarity > a.rarity) ? 1 : -1); // If b.rarity is bigger than a.rarity, return 1 to the sort function, else return -1
 Data.forEach((figurObjekt) => {
     let gevinstDisplayFigurElement = document.createElement('li');
@@ -124,7 +129,9 @@ Data.forEach((figurObjekt) => {
     figurVærdi.innerHTML = `Value: ${figurObjekt.value}`;
     gevinstDisplayFigurElement.append(figurVærdi);
 });
+
 let rullerArray = [[], [], []];
+
 shuffle(tempArray);
 function shuffle(A) {
     var currentIndex = A.length, temporaryValue, randomIndex;
@@ -140,21 +147,25 @@ function shuffle(A) {
     }
     return A;
 }
+
 for (let i = 0; i < arrayExtentions; i++) {
     tempArray.forEach((tempObject) => {
         rullerArray[0].push(tempObject);
     });
 }
+
 for (let i = 0; i < arrayExtentions; i++) {
     tempArray.forEach((tempObject) => {
         rullerArray[1].push(tempObject);
     });
 }
+
 for (let i = 0; i < arrayExtentions; i++) {
     tempArray.forEach((tempObject) => {
         rullerArray[2].push(tempObject);
     });
 }
+
 makeRulle1();
 function makeRulle1() {
     rulle1Overflowing.style.transition = "unset";
@@ -168,6 +179,7 @@ function makeRulle1() {
         rulle1Overflowing.appendChild(rulleFigur);
     });
 }
+
 makeRulle2();
 function makeRulle2() {
     rulle2Overflowing.style.transition = "unset";
@@ -181,6 +193,7 @@ function makeRulle2() {
         rulle2Overflowing.appendChild(rulleFigur);
     });
 }
+
 makeRulle3();
 function makeRulle3() {
     rulle3Overflowing.style.transition = "unset";
@@ -194,9 +207,11 @@ function makeRulle3() {
         rulle3Overflowing.appendChild(rulleFigur);
     });
 }
+
 betalMønterBtnElement.addEventListener('click', () => {
     depositCoins();
 });
+
 function depositCoins() {
     if (!isNaN(parseInt(møntIndkast.value))) {
         mønter += parseInt(møntIndkast.value);
@@ -213,6 +228,7 @@ function depositCoins() {
     }
     møntIndkast.blur();
 }
+
 document.addEventListener('keydown', keyPress);
 function keyPress(e) {
     if (e.keyCode == 32 && !currentlySpinning) {
@@ -222,9 +238,11 @@ function keyPress(e) {
         depositCoins();
     }
 }
+
 startBtnElement.addEventListener('click', () => {
     userInitiatedMachine();
 });
+
 autoBtnElement.addEventListener('click', () => {
     if (!autoSpinActive) { // If auto spin is not currently activated.
         if (!currentlySpinning) { // If the machine is not currently spinning.
@@ -243,6 +261,7 @@ autoBtnElement.addEventListener('click', () => {
     }
     ;
 });
+
 function userInitiatedMachine() {
     if (mønter >= allowSpin || freeSpinCount != 0) {
         gameCount++;
@@ -264,12 +283,12 @@ function userInitiatedMachine() {
         rulle1Index = randomIntFromInterval(0, X) + (Math.floor(forskydning) * 1);
         rulle2Index = randomIntFromInterval(0, X) + (Math.floor(forskydning) * 2);
         rulle3Index = randomIntFromInterval(0, X) + (Math.floor(forskydning) * 3);
-        console.log(`Rulle1 kan ramme mellem Index ${(0 + (Math.floor(forskydning)) * 1)} Og ${(X + (Math.floor(forskydning)) * 1)}`);
-        console.log(`Rulle2 kan ramme mellem Index ${(0 + (Math.floor(forskydning)) * 2)} Og ${(X + (Math.floor(forskydning)) * 2)}`);
-        console.log(`Rulle3 kan ramme mellem Index ${(0 + (Math.floor(forskydning)) * 3)} Og ${(X + (Math.floor(forskydning)) * 3)}`);
-        console.log(rullerArray[0].slice(25, 45));
-        console.log(rullerArray[1].slice(50, 70));
-        console.log(rullerArray[2].slice(75, 95));
+        // console.log(`Rulle1 kan ramme mellem Index ${(0 + (Math.floor(forskydning)) * 1)} Og ${(X + (Math.floor(forskydning)) * 1)}`);
+        // console.log(`Rulle2 kan ramme mellem Index ${(0 + (Math.floor(forskydning)) * 2)} Og ${(X + (Math.floor(forskydning)) * 2)}`);
+        // console.log(`Rulle3 kan ramme mellem Index ${(0 + (Math.floor(forskydning)) * 3)} Og ${(X + (Math.floor(forskydning)) * 3)}`);
+        // console.log(rullerArray[0].slice(25, 45));
+        // console.log(rullerArray[1].slice(50, 70));
+        // console.log(rullerArray[2].slice(75, 95));
         startSpinning(rulle1Index, rulle2Index, rulle3Index);
     }
     else {
@@ -280,6 +299,7 @@ function userInitiatedMachine() {
     }
     updateCoinAndSpinCount();
 }
+
 function updateCoinAndSpinCount() {
     mønterElement.innerHTML = mønter.toString();
     if (freeSpinCount <= 1) {
@@ -288,9 +308,11 @@ function updateCoinAndSpinCount() {
     }
     freeSpinsDisplayElement.innerHTML = `Free Spins: ${freeSpinCount.toString()}`;
 }
+
 function randomIntFromInterval(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
+
 function startSpinning(Number1, Number2, Number3) {
     setTimeout(() => {
         rulle1Overflowing.style.transition = "all 3s ease-out";
@@ -301,19 +323,23 @@ function startSpinning(Number1, Number2, Number3) {
         rulle3Overflowing.style.marginTop = `${-Number3 * figurHøjde}px`;
     }, 15);
 }
+
 rulle1Overflowing.addEventListener('transitionend', () => {
     rulle1RamtFigur = rullerArray[0][rulle1Index + 1].name;
     console.log(rullerArray[0]);
 });
+
 rulle2Overflowing.addEventListener('transitionend', () => {
     rulle2RamtFigur = rullerArray[1][rulle2Index + 1].name;
 });
+
 rulle2Overflowing.addEventListener('transitionend', () => {
     rulle3RamtFigur = rullerArray[2][rulle3Index + 1].name;
     winOrLose(rulle1RamtFigur, rulle2RamtFigur, rulle3RamtFigur);
     audioElement.pause();
     audioElement.currentTime = 0;
 });
+
 function winOrLose(figur1, figur2, figur3) {
     if (figur1 === figur2 && figur2 === figur3) {
         setTimeout(() => {
@@ -326,6 +352,7 @@ function winOrLose(figur1, figur2, figur3) {
             updateCoinAndSpinCount();
         }, 1000);
     }
+
     else if (rullerArray[0][rulle1Index].name === rullerArray[1][rulle2Index + 1].name && rullerArray[1][rulle2Index + 1].name === rullerArray[2][rulle3Index + 2].name) {
         setTimeout(() => {
             winCount++;
@@ -335,6 +362,7 @@ function winOrLose(figur1, figur2, figur3) {
             updateCoinAndSpinCount();
         }, 1000);
     }
+
     else if (rullerArray[0][rulle1Index + 2].name === rullerArray[1][rulle2Index + 1].name && rullerArray[1][rulle2Index + 1].name === rullerArray[2][rulle3Index].name) {
         setTimeout(() => {
             winCount++;
@@ -344,6 +372,7 @@ function winOrLose(figur1, figur2, figur3) {
             updateCoinAndSpinCount();
         }, 1000);
     }
+
     else {
         setTimeout(() => {
             startBtnElement.disabled = false;
@@ -358,6 +387,7 @@ function winOrLose(figur1, figur2, figur3) {
         gameCountDisplayElement.innerHTML = `Game Count: ${gameCount}`;
     }, 1000);
 }
+
 function freeSpinTracker() {
     if (rullerArray[1][rulle2Index + 1].name == "melon" || rullerArray[1][rulle2Index + 1].name == "appelsin") {
         freeSpinCount += 2;
