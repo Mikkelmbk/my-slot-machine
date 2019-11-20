@@ -15,10 +15,13 @@ let gameCountDisplayElement = document.querySelector('.game-count');
 let audioElement = document.querySelector('audio');
 
 let holdRulle1Btn = document.querySelector('.hold-rulle1');
+holdRulle1Btn.disabled = true;
 let holdRulle1Boolean = false;
 let holdRulle2Btn = document.querySelector('.hold-rulle2');
+holdRulle2Btn.disabled = true;
 let holdRulle2Boolean = false;
 let holdRulle3Btn = document.querySelector('.hold-rulle3');
+holdRulle3Btn.disabled = true;
 let holdRulle3Boolean = false;
 
 let figurHøjde = Math.floor(rulle1Displayed.offsetHeight / 3);
@@ -430,6 +433,9 @@ rulle3Overflowing.addEventListener('transitionend', () => {
 });
 
 function winOrLose() {
+    holdRulle1Btn.disabled = false;
+    holdRulle2Btn.disabled = false;
+    holdRulle3Btn.disabled = false;
     if (rulle1VenstreCenter.name === rulle2Center.name && rulle2Center.name === rulle3HøjreCenter.name) {
         winCount++;
         startBtnElement.disabled = false;
