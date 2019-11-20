@@ -255,6 +255,15 @@ function keyPress(e) {
     if (e.keyCode == 13) {
         depositCoins();
     }
+    if(e.keyCode == 49 && !holdRulle1Btn.disabled){
+        holdRulle1();
+    }
+    if(e.keyCode == 50 && !holdRulle2Btn.disabled){
+        holdRulle2();
+    }
+    if(e.keyCode == 51 && !holdRulle3Btn.disabled){
+        holdRulle3();
+    }
 }
 
 startBtnElement.addEventListener('click', () => {
@@ -281,6 +290,18 @@ autoBtnElement.addEventListener('click', () => {
 });
 
 holdRulle1Btn.addEventListener('click', (event) => {
+    holdRulle1();
+});
+
+holdRulle2Btn.addEventListener('click', (event) => {
+    holdRulle2();
+});
+
+holdRulle3Btn.addEventListener('click', (event) => {
+    holdRulle3();
+});
+
+function holdRulle1(){
     if (!holdRulle1Boolean) {
         holdRulle1Btn.style.backgroundColor = "green";
         holdRulle1Btn.innerHTML = "Release";
@@ -291,9 +312,9 @@ holdRulle1Btn.addEventListener('click', (event) => {
         holdRulle1Btn.innerHTML = "Hold";
         holdRulle1Boolean = false;
     }
-});
+}
 
-holdRulle2Btn.addEventListener('click', (event) => {
+function holdRulle2(){
     if (!holdRulle2Boolean) {
         holdRulle2Btn.style.backgroundColor = "green";
         holdRulle2Btn.innerHTML = "Release";
@@ -304,9 +325,9 @@ holdRulle2Btn.addEventListener('click', (event) => {
         holdRulle2Btn.innerHTML = "Hold";
         holdRulle2Boolean = false;
     }
-});
+}
 
-holdRulle3Btn.addEventListener('click', (event) => {
+function holdRulle3(){
     if (!holdRulle3Boolean) {
         holdRulle3Btn.style.backgroundColor = "green";
         holdRulle3Btn.innerHTML = "Release";
@@ -317,7 +338,7 @@ holdRulle3Btn.addEventListener('click', (event) => {
         holdRulle3Btn.innerHTML = "Hold";
         holdRulle3Boolean = false;
     }
-});
+}
 
 function userInitiatedMachine() {
     if (mønter >= allowSpin || freeSpinCount != 0) {
@@ -412,6 +433,7 @@ rulle1Overflowing.addEventListener('transitionend', () => {
     rulle1VenstreCenter = rullerArray[0][rulle1Index + 1];
     rulle1VenstreBund = rullerArray[0][rulle1Index + 2];
     if(holdRulle2Boolean && holdRulle3Boolean){
+        
         winOrLose();
     }
 });
