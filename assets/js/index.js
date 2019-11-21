@@ -51,8 +51,8 @@
             controlsElement.id = "hidden";
             spilResultat.id = "hidden";
             contentWrapperElement.innerHTML = `
-        <div>
-            <form id="loginForm">
+        <div class="form-container">
+            <form class="loginForm">
             <div>
                 <label>Email:</label>
                 <input type="text" name="Email">
@@ -63,12 +63,24 @@
             </div>
             <button class="login-btn">Login</button>
             </form>
-            <button class="create-user-btn">Gå til Oprettelses Formular</button>
+
+            <form class="opretForm">
+            <div>
+                <label>Email:</label>
+                <input type="text" name="Email">
+            </div>
+            <div>
+                <label>Password:</label>
+                <input type="password" name="Password"></input>
+            </div>
+            <button class="opret-btn">Opret</button>
+            </form>
+            <button class="toggle-forms-btn">Click to display signup Form</button>
+            <p class="error-message"></p>
         </div>
         `;
-
-            let loginFormElement = document.querySelector('#loginForm');
-
+            let errorMessageElement = document.querySelector('.error-message');
+            let loginFormElement = document.querySelector('.loginForm');
             loginFormElement.addEventListener('submit', (event) => {
                 event.preventDefault();
                 const email = loginFormElement.Email.value;
@@ -78,62 +90,52 @@
                     .then((cred) => {
                         console.log(cred);
                         loginFormElement.reset();
-                        window.location.replace('https://my-slot-machine.netlify.com/');
+                        window.location.replace(window.location.href);
                     })
                     .catch((err) => {
                         console.log(err);
+                        errorMessageElement.innerHTML = err;
                     })
             })
 
-            let goToCreateUserFormBtn = document.querySelector('.create-user-btn');
+            let opretFormElement = document.querySelector('.opretForm');
+            opretFormElement.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const email = opretFormElement.Email.value;
+                const password = opretFormElement.Password.value;
 
-            goToCreateUserFormBtn.addEventListener('click', () => {
-                contentWrapperElement.innerHTML = `
-                <div>
-                <form id="opretForm">
-                <div>
-                    <label>Email:</label>
-                    <input type="text" name="Email">
-                </div>
-                <div>
-                    <label>Password:</label>
-                    <input type="password" name="Password"></input>
-                </div>
-                <button class="opret-btn">Opret</button>
-                </form>
-                <button class="login-formular-btn">Gå til Login Formular</button>
-            </div>
-                `;
-
-                let opretFormElement = document.querySelector('#opretForm');
-
-                opretFormElement.addEventListener('submit', (event) => {
-                    event.preventDefault();
-
-                    const email = opretFormElement.Email.value;
-                    const password = opretFormElement.Password.value;
-
-                    auth.createUserWithEmailAndPassword(email,password)
-                    .then((cred)=>{
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then((cred) => {
                         console.log(cred);
-                        window.location.replace('https://my-slot-machine.netlify.com/')
+                        window.location.replace(window.location.href);
                     })
-                    .catch((err)=>{
-                        console.log('err: ', err);
-                        
+                    .catch((err) => {
+                        errorMessageElement.innerHTML = err;
                     })
-                })
-
-
-                let goToLoginFormular = document.querySelector('.login-formular-btn');
-
-                goToLoginFormular.addEventListener('click',()=>{
-                    window.location.replace('https://my-slot-machine.netlify.com/');
-                })
-
-
+            })
+            opretFormElement.classList.add('hidden');
+            loginFormElement.classList.add('formStyling');
+            let toggleFormsBtn = document.querySelector('.toggle-forms-btn');
+            toggleFormsBtn.addEventListener('click',()=>{
+                if(opretFormElement.classList.contains('hidden')){
+                    loginFormElement.classList.add('hidden');
+                    loginFormElement.classList.remove('formStyling');
+                    opretFormElement.classList.remove('hidden');
+                    opretFormElement.classList.add('formStyling');
+                    toggleFormsBtn.innerHTML = "Click to display login Form";
+                    opretFormElement.reset();
+                }
+                else if(loginFormElement.classList.contains('hidden')){
+                    opretFormElement.classList.add('hidden');
+                    opretFormElement.classList.remove('formStyling');
+                    loginFormElement.classList.remove('hidden');
+                    loginFormElement.classList.add('formStyling');
+                    toggleFormsBtn.innerHTML = "Click to display signup Form";
+                    loginFormElement.reset();
+                }
 
             })
+
 
         }
     })
