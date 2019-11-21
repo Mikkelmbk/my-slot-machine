@@ -7,6 +7,7 @@ let startBtnElement = document.querySelector('.start-btn');
 let autoBtnElement = document.querySelector('.auto-btn');
 let betalMønterBtnElement = document.querySelector('.betal-mønter');
 let møntIndkast = document.querySelector('.mønt-indkast');
+let møntIndkastHasFocus = false;
 let rulle1Displayed = document.querySelector('.rulle1');
 let mønterElement = document.querySelector('.mønter');
 let winRateDisplayElement = document.querySelector('.win-rate');
@@ -24,7 +25,6 @@ let holdRulle2Boolean = false;
 let holdRulle3Btn = document.querySelector('.hold-rulle3');
 holdRulle3Btn.disabled = true;
 let holdRulle3Boolean = false;
-
 let rulleLockCount = 0;
 
 let figurHøjde = Math.floor(rulle1Displayed.offsetHeight / 3);
@@ -47,37 +47,43 @@ gameCountDisplayElement.innerHTML = `T: 0 | L: 0 | W: 0`;
 // 		"name": "appelsin",
 // 		"rarity": 5,
 // 		"file": "appelsin.png",
-// 		"value": 50
+// 		"value": 50,
+//      "freeSpin":2,
 // 	},
 // 	{
 // 		"name": "bar",
 // 		"rarity": 3,
 // 		"file": "bar.png",
-// 		"value": 150
+// 		"value": 150,
+//      "freeSpin":5,
 // 	},
 // 	{
 // 		"name": "7",
 // 		"rarity": 2,
 // 		"file": "syv.png",
-// 		"value": 300
+// 		"value": 500,
+//      "freeSpin":10,
 // 	},
 // 	{
 // 		"name": "blomme",
 // 		"rarity": 4,
 // 		"file": "blomme.png",
-// 		"value": 80
+// 		"value": 80,
+//      "freeSpin":3,
 // 	},
 // 	{
 // 		"name": "diamant",
 // 		"rarity": 1,
 // 		"file": "diamant.png",
-// 		"value": 500
+// 		"value": 1000,
+//      "freeSpin":25,
 // 	},
 // 	{
 // 		"name": "melon",
 // 		"rarity": 5,
 // 		"file": "melon.png",
-// 		"value": 50
+// 		"value": 50,
+//      "freeSpin":2,
 // 	}
 // ];
 let Data = [
@@ -85,31 +91,36 @@ let Data = [
         "name": "bar",
         "rarity": 4,
         "file": "bar.png",
-        "value": 150
+        "value": 150,
+        "freeSpin":5,
     },
     {
         "name": "7",
         "rarity": 2,
         "file": "syv.png",
-        "value": 500
+        "value": 500,
+        "freeSpin":10,
     },
     {
         "name": "blomme",
         "rarity": 6,
         "file": "blomme.png",
-        "value": 80
+        "value": 80,
+        "freeSpin":3,
     },
     {
         "name": "diamant",
         "rarity": 1,
         "file": "diamant.png",
-        "value": 1000
+        "value": 1000,
+        "freeSpin":25,
     },
     {
         "name": "melon",
         "rarity": 7,
         "file": "melon.png",
-        "value": 50
+        "value": 50,
+        "freeSpin": 2,
     }
 ];
 
@@ -229,6 +240,13 @@ function makeRulle3() {
     });
 }
 
+møntIndkast.addEventListener('focusin',()=>{
+    møntIndkastHasFocus = true;
+});
+møntIndkast.addEventListener('focusout',()=>{
+    møntIndkastHasFocus = false;
+});
+
 betalMønterBtnElement.addEventListener('click', () => {
     depositCoins();
 });
@@ -255,16 +273,16 @@ function keyPress(e) {
     if (e.keyCode == 32 && !currentlySpinning) {
         userInitiatedMachine();
     }
-    if (e.keyCode == 13) {
+    if (e.keyCode == 13 && møntIndkastHasFocus) {
         depositCoins();
     }
-    if (e.keyCode == 49 && !holdRulle1Btn.disabled) {
+    if (e.keyCode == 49 && !holdRulle1Btn.disabled && !møntIndkastHasFocus) {
         holdRulle1();
     }
-    if (e.keyCode == 50 && !holdRulle2Btn.disabled) {
+    if (e.keyCode == 50 && !holdRulle2Btn.disabled && !møntIndkastHasFocus) {
         holdRulle2();
     }
-    if (e.keyCode == 51 && !holdRulle3Btn.disabled) {
+    if (e.keyCode == 51 && !holdRulle3Btn.disabled && !møntIndkastHasFocus) {
         holdRulle3();
     }
 }
@@ -501,7 +519,7 @@ function winOrLose() {
         winCount++;
         startBtnElement.disabled = false;
         freeSpinTracker();
-        spilResultat.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rulle2Center.file}"> på tværs, Du har ${freeSpinCount} free spins`;
+        spilResultat.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rulle2Center.file}"> på tværs, Du får ${rulle2Center.freeSpin} free spins`;
         updateCoinAndSpinCount();
     }
 
@@ -509,7 +527,7 @@ function winOrLose() {
         winCount++;
         startBtnElement.disabled = false;
         freeSpinTracker();
-        spilResultat.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rulle2Center.file}"> på tværs, Du har ${freeSpinCount} free spins`;
+        spilResultat.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rulle2Center.file}"> på tværs, Du får ${rulle2Center.freeSpin} free spins`;
         updateCoinAndSpinCount();
     }
 
@@ -524,22 +542,8 @@ function winOrLose() {
     gameCountDisplayElement.innerHTML = `T: ${gameCount} | L: ${(gameCount - winCount)} | W: ${winCount}`;
 }
 
-function freeSpinTracker(x, y) {
-    if (rulle2Center.name == "melon" || rulle2Center.name == "appelsin") {
-        freeSpinCount += 2;
-    }
-    if (rulle2Center.name == "blomme") {
-        freeSpinCount += 3;
-    }
-    if (rulle2Center.name == "bar") {
-        freeSpinCount += 5;
-    }
-    if (rulle2Center.name == "7") {
-        freeSpinCount += 10;
-    }
-    if (rulle2Center.name == "diamant") {
-        freeSpinCount += 25;
-    }
+function freeSpinTracker() {
+    freeSpinCount += rulle2Center.freeSpin;
 }
 }());
 
