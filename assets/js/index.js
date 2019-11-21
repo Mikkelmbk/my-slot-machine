@@ -1,3 +1,4 @@
+(function (){
 let rulle1Overflowing = document.querySelector('.rulle1-overflowing');
 let rulle2Overflowing = document.querySelector('.rulle2-overflowing');
 let rulle3Overflowing = document.querySelector('.rulle3-overflowing');
@@ -23,6 +24,8 @@ let holdRulle2Boolean = false;
 let holdRulle3Btn = document.querySelector('.hold-rulle3');
 holdRulle3Btn.disabled = true;
 let holdRulle3Boolean = false;
+
+let rulleLockCount = 0;
 
 let figurHøjde = Math.floor(rulle1Displayed.offsetHeight / 3);
 let mønter = 200;
@@ -255,13 +258,13 @@ function keyPress(e) {
     if (e.keyCode == 13) {
         depositCoins();
     }
-    if(e.keyCode == 49 && !holdRulle1Btn.disabled){
+    if (e.keyCode == 49 && !holdRulle1Btn.disabled) {
         holdRulle1();
     }
-    if(e.keyCode == 50 && !holdRulle2Btn.disabled){
+    if (e.keyCode == 50 && !holdRulle2Btn.disabled) {
         holdRulle2();
     }
-    if(e.keyCode == 51 && !holdRulle3Btn.disabled){
+    if (e.keyCode == 51 && !holdRulle3Btn.disabled) {
         holdRulle3();
     }
 }
@@ -301,42 +304,60 @@ holdRulle3Btn.addEventListener('click', (event) => {
     holdRulle3();
 });
 
-function holdRulle1(){
-    if (!holdRulle1Boolean) {
-        holdRulle1Btn.style.backgroundColor = "green";
-        holdRulle1Btn.innerHTML = "Release";
-        holdRulle1Boolean = true;
+function holdRulle1() {
+    if (!holdRulle1Boolean && mønter >= 10) {
+        if (rulleLockCount <= 1 && !currentlySpinning) {
+            holdRulle1Btn.style.backgroundColor = "green";
+            holdRulle1Btn.innerHTML = "Release";
+            holdRulle1Boolean = true;
+            mønter -= 10;
+            rulleLockCount++;
+            updateCoinAndSpinCount();
+        }
     }
     else {
         holdRulle1Btn.style.backgroundColor = "rgb(223, 61, 61)";
         holdRulle1Btn.innerHTML = "Hold";
         holdRulle1Boolean = false;
+        rulleLockCount--;
     }
 }
 
-function holdRulle2(){
-    if (!holdRulle2Boolean) {
-        holdRulle2Btn.style.backgroundColor = "green";
-        holdRulle2Btn.innerHTML = "Release";
-        holdRulle2Boolean = true;
+function holdRulle2() {
+    if (!holdRulle2Boolean && mønter >= 10) {
+        if (rulleLockCount <= 1 && !currentlySpinning) {
+            holdRulle2Btn.style.backgroundColor = "green";
+            holdRulle2Btn.innerHTML = "Release";
+            holdRulle2Boolean = true;
+            mønter -= 10;
+            rulleLockCount++;
+            updateCoinAndSpinCount();
+        }
     }
     else {
         holdRulle2Btn.style.backgroundColor = "rgb(223, 61, 61)";
         holdRulle2Btn.innerHTML = "Hold";
         holdRulle2Boolean = false;
+        rulleLockCount--;
     }
 }
 
-function holdRulle3(){
-    if (!holdRulle3Boolean) {
-        holdRulle3Btn.style.backgroundColor = "green";
-        holdRulle3Btn.innerHTML = "Release";
-        holdRulle3Boolean = true;
+function holdRulle3() {
+    if (!holdRulle3Boolean && mønter >= 10) {
+        if (rulleLockCount <= 1 && !currentlySpinning) {
+            holdRulle3Btn.style.backgroundColor = "green";
+            holdRulle3Btn.innerHTML = "Release";
+            holdRulle3Boolean = true;
+            mønter -= 10;
+            rulleLockCount++;
+            updateCoinAndSpinCount();
+        }
     }
     else {
         holdRulle3Btn.style.backgroundColor = "rgb(223, 61, 61)";
         holdRulle3Btn.innerHTML = "Hold";
         holdRulle3Boolean = false;
+        rulleLockCount--;
     }
 }
 
@@ -402,7 +423,6 @@ function randomIntFromInterval(min, max) {
 
 function startSpinning(Number1, Number2, Number3) {
     setTimeout(() => {
-        // if(!holdRulle1Boolean || !holdRulle2Boolean || !holdRulle3Boolean)
         if (holdRulle1Boolean) {
             rulle1Overflowing.style.transition = "unset";
         }
@@ -432,15 +452,14 @@ rulle1Overflowing.addEventListener('transitionend', () => {
     rulle1VenstreTop = rullerArray[0][rulle1Index];
     rulle1VenstreCenter = rullerArray[0][rulle1Index + 1];
     rulle1VenstreBund = rullerArray[0][rulle1Index + 2];
-    if(holdRulle2Boolean && holdRulle3Boolean){
-        
+    if (holdRulle2Boolean && holdRulle3Boolean) {
         winOrLose();
     }
 });
 
 rulle2Overflowing.addEventListener('transitionend', () => {
     rulle2Center = rullerArray[1][rulle2Index + 1];
-    if(holdRulle3Boolean){
+    if (holdRulle3Boolean) {
         winOrLose();
     }
 });
@@ -458,6 +477,16 @@ function winOrLose() {
     holdRulle1Btn.disabled = false;
     holdRulle2Btn.disabled = false;
     holdRulle3Btn.disabled = false;
+
+    if (holdRulle1Boolean) {
+        holdRulle1();
+    }
+    if (holdRulle2Boolean) {
+        holdRulle2();
+    }
+    if (holdRulle3Boolean) {
+        holdRulle3();
+    }
     if (rulle1VenstreCenter.name === rulle2Center.name && rulle2Center.name === rulle3HøjreCenter.name) {
         winCount++;
         startBtnElement.disabled = false;
@@ -495,7 +524,7 @@ function winOrLose() {
     gameCountDisplayElement.innerHTML = `T: ${gameCount} | L: ${(gameCount - winCount)} | W: ${winCount}`;
 }
 
-function freeSpinTracker() {
+function freeSpinTracker(x, y) {
     if (rulle2Center.name == "melon" || rulle2Center.name == "appelsin") {
         freeSpinCount += 2;
     }
@@ -512,4 +541,5 @@ function freeSpinTracker() {
         freeSpinCount += 25;
     }
 }
+}());
 
