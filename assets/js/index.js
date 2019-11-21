@@ -1,4 +1,4 @@
-// (function () {
+(function () {
 let contentWrapperElement = document.querySelector('.content-wrapper');
 let controlsElement = document.querySelector('.controls');
 let logoutBtnElement = document.querySelector('.logout-btn');
@@ -667,5 +667,5 @@ function freeSpinTracker() {
 }
 
 
-// }());
+}());
 
