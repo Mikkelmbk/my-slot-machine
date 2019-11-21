@@ -21,6 +21,51 @@
 	.win-rate,.start-btn,.game-count{
 		display:none;
 	}
+
+	.login-btn,.opret-btn{
+		margin:0;
+	}
+	
+	.toggle-forms-btn{
+		margin:10px 0;
+	}
+	
+	.formStyling{
+		display:flex;
+		flex-direction:column;
+		align-items:flex-start;
+	}
+	
+	.formStyling div{
+		display:flex;
+		flex-direction:column;
+		margin: 0 0 5px 0;
+	}
+	
+	.formStyling input{
+		border:none;
+		border-radius:2px;
+		height:20px;
+		padding-left:4px;
+	}
+	
+	.formStyling label{
+		color:white;
+		font-weight:bold;
+	}
+	
+	.error-message{
+		margin:0;
+		color:white;
+		font-weight:bold;
+	}
+	
+	.form-container{
+		background-color:rgba(45, 184, 189, 0.253);
+		padding:30px;
+		border-radius:5px;
+		width:220px;
+	}
 	
 	.content-wrapper{
 		display:flex;

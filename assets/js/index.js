@@ -44,9 +44,15 @@
     winRateDisplayElement.innerHTML = "Win-rate: 0%";
     gameCountDisplayElement.innerHTML = `T: 0 | L: 0 | W: 0`;
 
+    let loggedInUserId;
+
 
     auth.onAuthStateChanged((user) => {
+        if(user != null){
+            loggedInUserId = user.uid;
+        }
         if (user == null) {
+            loggedInUserId = "";
             currentlySpinning = true;
             controlsElement.id = "hidden";
             spilResultat.id = "hidden";
@@ -137,9 +143,10 @@
             })
 
 
-        }
-    })
+        } //user null check ends
 
+        // console.log(user.uid)
+    });
 
     // let Data = [
     // 	{
@@ -643,10 +650,14 @@
             winRateDisplayElement.innerHTML = `Win-rate: ${((winCount / gameCount) * 100).toFixed(1)}%`;
         }
         gameCountDisplayElement.innerHTML = `T: ${gameCount} | L: ${(gameCount - winCount)} | W: ${winCount}`;
+
+
     }
 
     function freeSpinTracker() {
         freeSpinCount += rulle2Center.freeSpin;
     }
+
+    
 }());
 
