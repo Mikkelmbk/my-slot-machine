@@ -256,7 +256,7 @@ Data.forEach((figurObjekt) => {
     let gevinstDisplayFigurElement = document.createElement('li');
     gevinstDisplayElement.appendChild(gevinstDisplayFigurElement);
     let rarityDisplay = document.createElement('p');
-    rarityDisplay.innerHTML = `Rarity: ${figurObjekt.rarity * arrayExtentions}`;
+    rarityDisplay.innerHTML = `Free Spins: ${figurObjekt.freeSpin}`;
     gevinstDisplayFigurElement.appendChild(rarityDisplay);
     let figurBillede = document.createElement('img');
     figurBillede.src = `assets/image/${figurObjekt.file}`;

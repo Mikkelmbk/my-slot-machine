@@ -315,7 +315,7 @@ audio{
 
 .gevinst-liste{
 	/* height:500px; */
-	width:300px;
+	min-width:300px;
 	background-color:rgba(51, 51, 51, 0.568);
 	padding:25px;
 	box-sizing: border-box;
