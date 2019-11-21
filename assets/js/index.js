@@ -79,7 +79,7 @@ auth.onAuthStateChanged((user) => {
                 <label>Password:</label>
                 <input type="password" name="Password"></input>
             </div>
-            <button class="opret-btn">Opret</button>
+            <button class="opret-btn">Create Account</button>
             </form>
             <button class="toggle-forms-btn">Click to display signup Form</button>
             <p class="error-message"></p>
