@@ -1,3 +1,7 @@
+#hidden{
+	display:none;
+}
+
 @media (max-width:1050px){
 
 	html{
@@ -203,7 +207,7 @@ audio{
 	color:black;
 }
 
-.betal-mønter,.start-btn,.auto-btn{
+.betal-mønter,.start-btn,.auto-btn,.logout-btn{
 	border:none;
 	border-radius: 4px;
 	color:white;
