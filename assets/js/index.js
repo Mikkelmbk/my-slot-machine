@@ -451,6 +451,9 @@ function holdRulle1() {
         holdRulle1Btn.innerHTML = "Hold";
         holdRulle1Boolean = false;
         rulleLockCount--;
+        if(rulleLockCount < 0){
+            rulleLockCount = 0;
+        }
     }
 }
 
@@ -470,6 +473,9 @@ function holdRulle2() {
         holdRulle2Btn.innerHTML = "Hold";
         holdRulle2Boolean = false;
         rulleLockCount--;
+        if(rulleLockCount < 0){
+            rulleLockCount = 0;
+        }
     }
 }
 
@@ -489,6 +495,9 @@ function holdRulle3() {
         holdRulle3Btn.innerHTML = "Hold";
         holdRulle3Boolean = false;
         rulleLockCount--;
+        if(rulleLockCount < 0){
+            rulleLockCount = 0;
+        }
     }
 }
 
