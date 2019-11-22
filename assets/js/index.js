@@ -466,6 +466,7 @@
             spilResultat.innerHTML = "";
             betalMønterBtnElement.blur();
             møntIndkast.style.backgroundColor = "white";
+            updateDatabase(auth.currentUser.uid);
         }
         else {
             betalMønterBtnElement.blur();
@@ -651,7 +652,6 @@
 
     function winOrLose() {
 
-        console.log(auth.currentUser.uid);
         holdRulle1Btn.disabled = false;
         holdRulle2Btn.disabled = false;
         holdRulle3Btn.disabled = false;
@@ -673,8 +673,6 @@
             audioElement.play();
             audioElement.volume = 0.1;
             updateCoinAndSpinCount();
-
-
 
         }
 
@@ -705,7 +703,11 @@
 
         currentlySpinning = false;
 
-        db.collection('users').doc(auth.currentUser.uid).update({
+        updateDatabase(auth.currentUser.uid);
+    }
+
+    function updateDatabase(userUid) {
+        db.collection('users').doc(userUid).update({
             coin: mønter,
             freespin: freeSpinCount,
         });
