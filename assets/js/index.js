@@ -269,20 +269,7 @@ Data.forEach((figurObjekt) => {
 let rullerArray = [[], [], []];
 
 shuffle(tempArray);
-function shuffle(A) {
-    var currentIndex = A.length, temporaryValue, randomIndex;
-    // While there remain elements to shuffle...
-    while (0 !== currentIndex) {
-        // Pick a remaining element...
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex -= 1;
-        // And swap it with the current element.
-        temporaryValue = A[currentIndex];
-        A[currentIndex] = A[randomIndex];
-        A[randomIndex] = temporaryValue;
-    }
-    return A;
-}
+
 
 for (let i = 0; i < arrayExtentions; i++) {
     tempArray.forEach((tempObject) => {
@@ -303,48 +290,9 @@ for (let i = 0; i < arrayExtentions; i++) {
 }
 
 makeRulle1();
-function makeRulle1() {
-    rulle1Overflowing.style.transition = "unset";
-    rulle1Overflowing.innerHTML = "";
-    rulle1Overflowing.style.marginTop = "0";
-    rullerArray[0].forEach((rulle1) => {
-        let rulleFigur = document.createElement('img');
-        rulleFigur.style.height = `${figurHøjde}px`;
-        rulleFigur.src = `assets/image/${rulle1.file}`;
-        rulleFigur.classList.add('rulle-figur');
-        rulle1Overflowing.appendChild(rulleFigur);
-    });
-
-
-}
-
 makeRulle2();
-function makeRulle2() {
-    rulle2Overflowing.style.transition = "unset";
-    rulle2Overflowing.innerHTML = "";
-    rulle2Overflowing.style.marginTop = "0";
-    rullerArray[1].forEach((rulle2) => {
-        let rulleFigur = document.createElement('img');
-        rulleFigur.style.height = `${figurHøjde}px`;
-        rulleFigur.src = `assets/image/${rulle2.file}`;
-        rulleFigur.classList.add('rulle-figur');
-        rulle2Overflowing.appendChild(rulleFigur);
-    });
-}
-
 makeRulle3();
-function makeRulle3() {
-    rulle3Overflowing.style.transition = "unset";
-    rulle3Overflowing.innerHTML = "";
-    rulle3Overflowing.style.marginTop = "0";
-    rullerArray[2].forEach((rulle3) => {
-        let rulleFigur = document.createElement('img');
-        rulleFigur.style.height = `${figurHøjde}px`;
-        rulleFigur.src = `assets/image/${rulle3.file}`;
-        rulleFigur.classList.add('rulle-figur');
-        rulle3Overflowing.appendChild(rulleFigur);
-    });
-}
+
 
 møntIndkast.addEventListener('focusin', () => {
     møntIndkastHasFocus = true;
@@ -361,41 +309,7 @@ betalMønterBtnElement.addEventListener('click', () => {
     depositCoins();
 });
 
-function depositCoins() {
-    if (!isNaN(parseInt(møntIndkast.value))) {
-        mønter += parseInt(møntIndkast.value);
-        møntIndkast.value = "";
-        updateCoinAndSpinCount();
-        spilResultat.innerHTML = "";
-        betalMønterBtnElement.blur();
-        møntIndkast.style.backgroundColor = "white";
-    }
-    else {
-        betalMønterBtnElement.blur();
-        spilResultat.innerHTML = "Der kan kun indsættes tal i input feltet";
-        møntIndkast.style.backgroundColor = "red";
-    }
-    møntIndkast.blur();
-}
-
 document.addEventListener('keydown', keyPress);
-function keyPress(e) {
-    if (e.keyCode == 32 && !currentlySpinning) {
-        userInitiatedMachine();
-    }
-    if (e.keyCode == 13 && møntIndkastHasFocus) {
-        depositCoins();
-    }
-    if (e.keyCode == 49 && !holdRulle1Btn.disabled && !møntIndkastHasFocus) {
-        holdRulle1();
-    }
-    if (e.keyCode == 50 && !holdRulle2Btn.disabled && !møntIndkastHasFocus) {
-        holdRulle2();
-    }
-    if (e.keyCode == 51 && !holdRulle3Btn.disabled && !møntIndkastHasFocus) {
-        holdRulle3();
-    }
-}
 
 startBtnElement.addEventListener('click', () => {
     userInitiatedMachine();
@@ -434,6 +348,127 @@ holdRulle3Btn.addEventListener('click', (event) => {
     holdRulle3();
     holdRulle3Btn.blur();
 });
+
+rulle1Overflowing.addEventListener('transitionend', () => {
+    rulle1VenstreTop = rullerArray[0][rulle1Index];
+    rulle1VenstreCenter = rullerArray[0][rulle1Index + 1];
+    rulle1VenstreBund = rullerArray[0][rulle1Index + 2];
+    if (holdRulle2Boolean && holdRulle3Boolean) {
+        console.log("Hvis Rulle 2 og Rulle 3 Bliver fastholdt");
+        winOrLose();
+    }
+});
+
+rulle2Overflowing.addEventListener('transitionend', () => {
+    rulle2Center = rullerArray[1][rulle2Index + 1];
+    if (holdRulle3Boolean) {
+        console.log("Hvis rulle 3 bliver fastholdt");
+        winOrLose();
+    }
+});
+
+rulle3Overflowing.addEventListener('transitionend', () => {
+    rulle3HøjreTop = rullerArray[2][rulle3Index];
+    rulle3HøjreCenter = rullerArray[2][rulle3Index + 1];
+    rulle3HøjreBund = rullerArray[2][rulle3Index + 2];
+    console.log("Hvis Rulle 1 og 2 bliver fastholdt");
+    winOrLose();
+    audioElement.pause();
+    audioElement.currentTime = 0;
+});
+
+
+// Function Definition Section Starts.
+function shuffle(A) {
+    var currentIndex = A.length, temporaryValue, randomIndex;
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+        // And swap it with the current element.
+        temporaryValue = A[currentIndex];
+        A[currentIndex] = A[randomIndex];
+        A[randomIndex] = temporaryValue;
+    }
+    return A;
+}
+
+function makeRulle1() {
+    rulle1Overflowing.style.transition = "unset";
+    rulle1Overflowing.innerHTML = "";
+    rulle1Overflowing.style.marginTop = "0";
+    rullerArray[0].forEach((rulle1) => {
+        let rulleFigur = document.createElement('img');
+        rulleFigur.style.height = `${figurHøjde}px`;
+        rulleFigur.src = `assets/image/${rulle1.file}`;
+        rulleFigur.classList.add('rulle-figur');
+        rulle1Overflowing.appendChild(rulleFigur);
+    });
+
+
+}
+
+function makeRulle2() {
+    rulle2Overflowing.style.transition = "unset";
+    rulle2Overflowing.innerHTML = "";
+    rulle2Overflowing.style.marginTop = "0";
+    rullerArray[1].forEach((rulle2) => {
+        let rulleFigur = document.createElement('img');
+        rulleFigur.style.height = `${figurHøjde}px`;
+        rulleFigur.src = `assets/image/${rulle2.file}`;
+        rulleFigur.classList.add('rulle-figur');
+        rulle2Overflowing.appendChild(rulleFigur);
+    });
+}
+
+function makeRulle3() {
+    rulle3Overflowing.style.transition = "unset";
+    rulle3Overflowing.innerHTML = "";
+    rulle3Overflowing.style.marginTop = "0";
+    rullerArray[2].forEach((rulle3) => {
+        let rulleFigur = document.createElement('img');
+        rulleFigur.style.height = `${figurHøjde}px`;
+        rulleFigur.src = `assets/image/${rulle3.file}`;
+        rulleFigur.classList.add('rulle-figur');
+        rulle3Overflowing.appendChild(rulleFigur);
+    });
+}
+
+function depositCoins() {
+    if (!isNaN(parseInt(møntIndkast.value))) {
+        mønter += parseInt(møntIndkast.value);
+        møntIndkast.value = "";
+        updateCoinAndSpinCount();
+        spilResultat.innerHTML = "";
+        betalMønterBtnElement.blur();
+        møntIndkast.style.backgroundColor = "white";
+    }
+    else {
+        betalMønterBtnElement.blur();
+        spilResultat.innerHTML = "Der kan kun indsættes tal i input feltet";
+        møntIndkast.style.backgroundColor = "red";
+    }
+    møntIndkast.blur();
+}
+
+function keyPress(e) {
+    if (e.keyCode == 32 && !currentlySpinning) {
+        userInitiatedMachine();
+    }
+    if (e.keyCode == 13 && møntIndkastHasFocus) {
+        depositCoins();
+    }
+    if (e.keyCode == 49 && !holdRulle1Btn.disabled && !møntIndkastHasFocus) {
+        holdRulle1();
+    }
+    if (e.keyCode == 50 && !holdRulle2Btn.disabled && !møntIndkastHasFocus) {
+        holdRulle2();
+    }
+    if (e.keyCode == 51 && !holdRulle3Btn.disabled && !møntIndkastHasFocus) {
+        holdRulle3();
+    }
+}
 
 function holdRulle1() {
     if (!holdRulle1Boolean && mønter >= 10) {
@@ -591,34 +626,6 @@ function startSpinning(Number1, Number2, Number3) {
     }, 15);
 }
 
-rulle1Overflowing.addEventListener('transitionend', () => {
-    rulle1VenstreTop = rullerArray[0][rulle1Index];
-    rulle1VenstreCenter = rullerArray[0][rulle1Index + 1];
-    rulle1VenstreBund = rullerArray[0][rulle1Index + 2];
-    if (holdRulle2Boolean && holdRulle3Boolean) {
-        console.log("Hvis Rulle 2 og Rulle 3 Bliver fastholdt");
-        winOrLose();
-    }
-});
-
-rulle2Overflowing.addEventListener('transitionend', () => {
-    rulle2Center = rullerArray[1][rulle2Index + 1];
-    if (holdRulle3Boolean) {
-        console.log("Hvis rulle 3 bliver fastholdt");
-        winOrLose();
-    }
-});
-
-rulle3Overflowing.addEventListener('transitionend', () => {
-    rulle3HøjreTop = rullerArray[2][rulle3Index];
-    rulle3HøjreCenter = rullerArray[2][rulle3Index + 1];
-    rulle3HøjreBund = rullerArray[2][rulle3Index + 2];
-    console.log("Hvis Rulle 1 og 2 bliver fastholdt");
-    winOrLose();
-    audioElement.pause();
-    audioElement.currentTime = 0;
-});
-
 function winOrLose() {
     holdRulle1Btn.disabled = false;
     holdRulle2Btn.disabled = false;
@@ -674,7 +681,7 @@ function winOrLose() {
 function freeSpinTracker() {
     freeSpinCount += rulle2Center.freeSpin;
 }
-
+// Function Definition Section Ends.
 
 }());
 
