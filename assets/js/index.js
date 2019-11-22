@@ -44,16 +44,11 @@ updateCoinAndSpinCount();
 winRateDisplayElement.innerHTML = "Win-rate: 0%";
 gameCountDisplayElement.innerHTML = `T: 0 | L: 0 | W: 0`;
 
-let loggedInUserId;
-
 
 auth.onAuthStateChanged((user) => {
-    if (user != null) {
-        loggedInUserId = user.uid;
-    }
     if (user == null) {
         loggedInUserId = "";
-        // currentlySpinning = true;
+        currentlySpinning = true;
         controlsElement.id = "hidden";
         spilResultat.id = "hidden";
         contentWrapperElement.innerHTML = `
@@ -74,6 +69,10 @@ auth.onAuthStateChanged((user) => {
             <div>
                 <label>Email:</label>
                 <input type="text" name="Email">
+            </div>
+            <div>
+                <label>Username:</label>
+                <input type="text" name="Username">
             </div>
             <div>
                 <label>Password:</label>
@@ -108,11 +107,21 @@ auth.onAuthStateChanged((user) => {
         opretFormElement.addEventListener('submit', (event) => {
             event.preventDefault();
             const email = opretFormElement.Email.value;
+            const name = opretFormElement.Username.value;
             const password = opretFormElement.Password.value;
 
             auth.createUserWithEmailAndPassword(email, password)
                 .then((cred) => {
                     console.log(cred);
+                    return db.collection('users').doc(cred.user.uid).set({
+                        fullname: name,
+                        coin: mønter,
+                        freespin: freeSpinCount,
+
+
+                    })
+                })
+                .then(()=>{
                     window.location.replace(window.location.href);
                 })
                 .catch((err) => {
