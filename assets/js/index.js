@@ -47,7 +47,7 @@
 
     auth.onAuthStateChanged((user) => {
         if (user == null) {
-            loggedInUserId = "";
+            currentlySpinning = true;
             controlsElement.id = "hidden";
             spilResultat.id = "hidden";
             contentWrapperElement.innerHTML = `
@@ -115,8 +115,8 @@
                         // console.log(cred);
                         return db.collection('users').doc(cred.user.uid).set({
                             fullname: name,
-                            coin: mønter,
-                            freespin: freeSpinCount,
+                            coin: 200,
+                            freespin: 0,
 
 
                         })
