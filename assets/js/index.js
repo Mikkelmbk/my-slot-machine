@@ -92,7 +92,7 @@
 
                 auth.signInWithEmailAndPassword(email, password)
                     .then((cred) => {
-                        console.log(cred);
+                        // console.log(cred);
                         loginFormElement.reset();
 
                         window.location.replace(window.location.href);
@@ -112,7 +112,7 @@
 
                 auth.createUserWithEmailAndPassword(email, password)
                     .then((cred) => {
-                        console.log(cred);
+                        // console.log(cred);
                         return db.collection('users').doc(cred.user.uid).set({
                             fullname: name,
                             coin: mønter,
@@ -157,11 +157,14 @@
 
             db.collection('users').doc(user.uid).get()
                 .then((userData) => {
-                    console.log(userData.data());
+                    // console.log(userData.data());
                     mønter = userData.data().coin;
                     freeSpinCount = userData.data().freespin;
                     updateCoinAndSpinCount();
                     currentlySpinning = false;
+                })
+                .catch((err) => {
+                    console.log(err);
                 })
         }
 
@@ -647,6 +650,8 @@
     }
 
     function winOrLose() {
+
+        console.log(auth.currentUser.uid);
         holdRulle1Btn.disabled = false;
         holdRulle2Btn.disabled = false;
         holdRulle3Btn.disabled = false;
@@ -668,6 +673,9 @@
             audioElement.play();
             audioElement.volume = 0.1;
             updateCoinAndSpinCount();
+
+
+
         }
 
         else if (rulle1VenstreTop.name === rulle2Center.name && rulle2Center.name === rulle3HøjreBund.name) {
@@ -696,6 +704,11 @@
         gameCountDisplayElement.innerHTML = `T: ${gameCount} | L: ${(gameCount - winCount)} | W: ${winCount}`;
 
         currentlySpinning = false;
+
+        db.collection('users').doc(auth.currentUser.uid).update({
+            coin: mønter,
+            freespin: freeSpinCount,
+        });
     }
 
     function freeSpinTracker() {
