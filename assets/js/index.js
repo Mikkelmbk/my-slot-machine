@@ -697,7 +697,7 @@
             winCount++;
             startBtnElement.disabled = false;
             coins += rulle1VenstreCenter.value;
-            gameResultElement.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rulle2Center.file}"> og vandt ${rulle1VenstreCenter.value}`;
+            gameResultElement.innerHTML = `You hit 3 <img class="spil-resultat-image" src="assets/image/${rulle2Center.file}"> and won ${rulle1VenstreCenter.value}`;
             audioElement.play();
             audioElement.volume = 0.1;
             updateCoinAndSpinCount();
@@ -708,7 +708,7 @@
             winCount++;
             startBtnElement.disabled = false;
             freeSpinTracker();
-            gameResultElement.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rulle2Center.file}"> på tværs, Du får ${rulle2Center.freeSpin} free spins`;
+            gameResultElement.innerHTML = `You hit 3 <img class="spil-resultat-image" src="assets/image/${rulle2Center.file}"> Across, You get ${rulle2Center.freeSpin} free spins`;
             updateCoinAndSpinCount();
         }
 
@@ -716,13 +716,13 @@
             winCount++;
             startBtnElement.disabled = false;
             freeSpinTracker();
-            gameResultElement.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rulle2Center.file}"> på tværs, Du får ${rulle2Center.freeSpin} free spins`;
+            gameResultElement.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rulle2Center.file}"> Across, You get ${rulle2Center.freeSpin} free spins`;
             updateCoinAndSpinCount();
         }
 
         else {
             startBtnElement.disabled = false;
-            gameResultElement.innerHTML = "Du vandt ikke, Prøv igen!";
+            gameResultElement.innerHTML = "You lost, try again!";
         }
         if (gameCount / winCount != Infinity) {
             winRateDisplayElement.innerHTML = `Win-rate: ${((winCount / gameCount) * 100).toFixed(1)}%`;
