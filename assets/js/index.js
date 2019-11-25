@@ -177,51 +177,53 @@
 
     });
 
+    {
+        // let Data = [
+        // 	{
+        // 		"name": "appelsin",
+        // 		"rarity": 5,
+        // 		"file": "appelsin.png",
+        // 		"value": 50,
+        //      "freeSpin":2,
+        // 	},
+        // 	{
+        // 		"name": "bar",
+        // 		"rarity": 3,
+        // 		"file": "bar.png",
+        // 		"value": 150,
+        //      "freeSpin":5,
+        // 	},
+        // 	{
+        // 		"name": "7",
+        // 		"rarity": 2,
+        // 		"file": "syv.png",
+        // 		"value": 500,
+        //      "freeSpin":10,
+        // 	},
+        // 	{
+        // 		"name": "blomme",
+        // 		"rarity": 4,
+        // 		"file": "blomme.png",
+        // 		"value": 80,
+        //      "freeSpin":3,
+        // 	},
+        // 	{
+        // 		"name": "diamant",
+        // 		"rarity": 1,
+        // 		"file": "diamant.png",
+        // 		"value": 1000,
+        //      "freeSpin":25,
+        // 	},
+        // 	{
+        // 		"name": "melon",
+        // 		"rarity": 5,
+        // 		"file": "melon.png",
+        // 		"value": 50,
+        //      "freeSpin":2,
+        // 	}
+        // ];
 
-    // let Data = [
-    // 	{
-    // 		"name": "appelsin",
-    // 		"rarity": 5,
-    // 		"file": "appelsin.png",
-    // 		"value": 50,
-    //      "freeSpin":2,
-    // 	},
-    // 	{
-    // 		"name": "bar",
-    // 		"rarity": 3,
-    // 		"file": "bar.png",
-    // 		"value": 150,
-    //      "freeSpin":5,
-    // 	},
-    // 	{
-    // 		"name": "7",
-    // 		"rarity": 2,
-    // 		"file": "syv.png",
-    // 		"value": 500,
-    //      "freeSpin":10,
-    // 	},
-    // 	{
-    // 		"name": "blomme",
-    // 		"rarity": 4,
-    // 		"file": "blomme.png",
-    // 		"value": 80,
-    //      "freeSpin":3,
-    // 	},
-    // 	{
-    // 		"name": "diamant",
-    // 		"rarity": 1,
-    // 		"file": "diamant.png",
-    // 		"value": 1000,
-    //      "freeSpin":25,
-    // 	},
-    // 	{
-    // 		"name": "melon",
-    // 		"rarity": 5,
-    // 		"file": "melon.png",
-    // 		"value": 50,
-    //      "freeSpin":2,
-    // 	}
-    // ];
+    }
     let Data = [
         {
             "name": "bar",
@@ -358,26 +360,27 @@
             }
         }
         else if (autoSpinActive) {
-            clearInterval(autoSpinInterval);
-            autoSpinActive = false;
-            autoBtnElement.innerHTML = "Auto Spil";
+            clearingAutoInterval();
         }
         ;
     });
 
-    gameInfoBtnElement.addEventListener('click',()=>{
+    gameInfoBtnElement.addEventListener('click', () => {
         gameOverlayElement.style.display = "flex";
         currentlySpinning = true;
         contentWrapperElement.style.opacity = 0;
+        clearingAutoInterval();
     });
 
-    gameOverlayElement.addEventListener('click',()=>{
+    gameOverlayElement.addEventListener('click', () => {
         gameOverlayElement.style.display = "none";
         contentWrapperElement.style.opacity = 1;
-        currentlySpinning = false;
+        if(autoSpinInterval == undefined){ // If the interval is undefined, then the machine is not running, and if the machine is not running, the winOrLose function wont set currentlySpinning to false, so then this click should do it.
+            currentlySpinning = false;
+        }
     });
 
-    prizeDisplayElement.addEventListener('click',(event)=>{
+    prizeDisplayElement.addEventListener('click', (event) => {
         event.stopPropagation();
     });
 
@@ -423,7 +426,7 @@
         audioElement.pause();
         audioElement.currentTime = 0;
     });
-     // EventListeners Section Ends.
+    // EventListeners Section Ends.
 
 
     // Function Definition Section Starts.
@@ -617,12 +620,12 @@
                 makeRulle1();
                 rulleWasHeldLastSpin = false;
             }
-            
+
             if (!holdRulle2Boolean) {
                 makeRulle2();
                 rulleWasHeldLastSpin = false;
             }
-           
+
             if (!holdRulle3Boolean) {
                 makeRulle3();
                 rulleWasHeldLastSpin = false;
@@ -654,9 +657,7 @@
             gameResultElement.innerHTML = "Indsæt flere penge for at spille videre";
             setTimeout(() => {
                 coinDepositElement.focus();
-                clearInterval(autoSpinInterval);
-                autoSpinActive = false;
-                autoBtnElement.innerHTML = "Auto Spil";
+                clearingAutoInterval();
             }, 10);
         }
         updateCoinAndSpinCount();
@@ -736,7 +737,7 @@
             winCount++;
             startBtnElement.disabled = false;
             freeSpinTracker();
-            gameResultElement.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rulle2Center.file}"> Across, You get ${rulle2Center.freeSpin} free spins`;
+            gameResultElement.innerHTML = `You hit 3 <img class="spil-resultat-image" src="assets/image/${rulle2Center.file}"> Across, You get ${rulle2Center.freeSpin} free spins`;
             updateCoinAndSpinCount();
         }
 
@@ -763,6 +764,12 @@
 
     function freeSpinTracker() {
         freeSpinCount += rulle2Center.freeSpin;
+    }
+
+    function clearingAutoInterval(){
+        clearInterval(autoSpinInterval);
+        autoSpinActive = false;
+        autoBtnElement.innerHTML = "Auto Spil";
     }
     // Function Definition Section Ends.
 
