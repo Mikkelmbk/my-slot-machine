@@ -30,6 +30,7 @@
     holdRulle3BtnElement.disabled = true;
     let holdRulle3Boolean = false;
     let rulleLockCount = 0;
+    let rulleWasHeldLastSpin = false;
 
     let figureHeight = Math.floor(rulle1Element.offsetHeight / 3);
     let coins = 200;
@@ -381,7 +382,7 @@
         rulle1VenstreCenter = rullerArray[0][rulle1Index + 1];
         rulle1VenstreBund = rullerArray[0][rulle1Index + 2];
         if (holdRulle2Boolean && holdRulle3Boolean) {
-            console.log("Hvis Rulle 2 og Rulle 3 Bliver fastholdt");
+            // console.log("Hvis Rulle 2 og Rulle 3 Bliver fastholdt");
             winOrLose();
         }
     });
@@ -389,7 +390,7 @@
     rulle2OverflowingElement.addEventListener('transitionend', () => {
         rulle2Center = rullerArray[1][rulle2Index + 1];
         if (holdRulle3Boolean) {
-            console.log("Hvis rulle 3 bliver fastholdt");
+            // console.log("Hvis rulle 3 bliver fastholdt");
             winOrLose();
         }
     });
@@ -398,7 +399,7 @@
         rulle3HøjreTop = rullerArray[2][rulle3Index];
         rulle3HøjreCenter = rullerArray[2][rulle3Index + 1];
         rulle3HøjreBund = rullerArray[2][rulle3Index + 2];
-        console.log("Hvis Rulle 1 og 2 bliver fastholdt");
+        // console.log("Hvis Rulle 1 og 2 bliver fastholdt");
         winOrLose();
         audioElement.pause();
         audioElement.currentTime = 0;
@@ -481,7 +482,7 @@
     }
 
     function keyPress(e) {
-        console.log(e);
+        // console.log(e);
         if (e.keyCode == 32 && !currentlySpinning) {
             userInitiatedMachine();
         }
@@ -513,13 +514,14 @@
 
     function holdRulle1() {
         if (!holdRulle1Boolean && coins >= 10) {
-            if (rulleLockCount <= 1 && !currentlySpinning) {
+            if (rulleLockCount <= 1 && !currentlySpinning && !rulleWasHeldLastSpin) {
                 holdRulle1BtnElement.style.backgroundColor = "green";
                 holdRulle1BtnElement.innerHTML = "Release";
                 holdRulle1Boolean = true;
                 coins -= 10;
                 rulleLockCount++;
                 updateCoinAndSpinCount();
+                updateDatabase(auth.currentUser.uid);
             }
         }
         else {
@@ -535,13 +537,14 @@
 
     function holdRulle2() {
         if (!holdRulle2Boolean && coins >= 10) {
-            if (rulleLockCount <= 1 && !currentlySpinning) {
+            if (rulleLockCount <= 1 && !currentlySpinning && !rulleWasHeldLastSpin) {
                 holdRulle2BtnElement.style.backgroundColor = "green";
                 holdRulle2BtnElement.innerHTML = "Release";
                 holdRulle2Boolean = true;
                 coins -= 10;
                 rulleLockCount++;
                 updateCoinAndSpinCount();
+                updateDatabase(auth.currentUser.uid);
             }
         }
         else {
@@ -557,13 +560,14 @@
 
     function holdRulle3() {
         if (!holdRulle3Boolean && coins >= 10) {
-            if (rulleLockCount <= 1 && !currentlySpinning) {
+            if (rulleLockCount <= 1 && !currentlySpinning && !rulleWasHeldLastSpin) {
                 holdRulle3BtnElement.style.backgroundColor = "green";
                 holdRulle3BtnElement.innerHTML = "Release";
                 holdRulle3Boolean = true;
                 coins -= 10;
                 rulleLockCount++;
                 updateCoinAndSpinCount();
+                updateDatabase(auth.currentUser.uid);
             }
         }
         else {
@@ -591,12 +595,21 @@
 
             if (!holdRulle1Boolean) {
                 makeRulle1();
+                rulleWasHeldLastSpin = false;
             }
+            
             if (!holdRulle2Boolean) {
                 makeRulle2();
+                rulleWasHeldLastSpin = false;
             }
+           
             if (!holdRulle3Boolean) {
                 makeRulle3();
+                rulleWasHeldLastSpin = false;
+            }
+            if (holdRulle1Boolean || holdRulle2Boolean || holdRulle3Boolean) {
+                rulleWasHeldLastSpin = true;
+                console.log(rulleWasHeldLastSpin)
             }
 
             if (freeSpinCount == 0) {

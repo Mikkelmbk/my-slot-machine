@@ -189,7 +189,7 @@ body{
 }
 
 .body-display{
-	grid-template-rows: 1fr 1fr 12fr;
+	grid-template-rows: 50px 50px 1fr;
 }
 
 .content-wrapper{
