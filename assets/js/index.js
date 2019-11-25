@@ -16,9 +16,12 @@
     let coinsElement = document.querySelector('.mønter');
     let winRateDisplayElement = document.querySelector('.win-rate');
     let gameResultElement = document.querySelector('.spil-resultat');
+    let gameResultContainerElement = document.querySelector('.spil-resultat-container');
     let freeSpinsDisplayElement = document.querySelector('.free-spins');
     let gameCountDisplayElement = document.querySelector('.game-count');
     let audioElement = document.querySelector('audio');
+    let gameOverlayElement = document.querySelector('.overlay');
+    let gameInfoBtnElement = document.querySelector('.game-info');
 
     let holdRulle1BtnElement = document.querySelector('.hold-rulle1');
     holdRulle1BtnElement.disabled = true;
@@ -52,7 +55,7 @@
             bodyElement.classList.remove('body-display');
             currentlySpinning = true;
             controlsElement.id = "hidden";
-            gameResultElement.id = "hidden";
+            gameResultContainerElement.id = "hidden";
             contentWrapperElement.innerHTML = `
         <div class="form-container">
             <form class="loginForm">
@@ -321,7 +324,7 @@
     makeRulle2();
     makeRulle3();
 
-
+    // EventListeners Section Start.
     coinDepositElement.addEventListener('focusin', () => {
         coinInputFieldHasFocus = true;
     });
@@ -360,6 +363,22 @@
             autoBtnElement.innerHTML = "Auto Spil";
         }
         ;
+    });
+
+    gameInfoBtnElement.addEventListener('click',()=>{
+        gameOverlayElement.style.display = "flex";
+        currentlySpinning = true;
+        contentWrapperElement.style.opacity = 0;
+    });
+
+    gameOverlayElement.addEventListener('click',()=>{
+        gameOverlayElement.style.display = "none";
+        contentWrapperElement.style.opacity = 1;
+        currentlySpinning = false;
+    });
+
+    prizeDisplayElement.addEventListener('click',(event)=>{
+        event.stopPropagation();
     });
 
     holdRulle1BtnElement.addEventListener('click', (event) => {
@@ -404,6 +423,7 @@
         audioElement.pause();
         audioElement.currentTime = 0;
     });
+     // EventListeners Section Ends.
 
 
     // Function Definition Section Starts.
