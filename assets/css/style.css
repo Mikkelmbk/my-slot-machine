@@ -184,13 +184,18 @@ html{
 body{
 	background-color:#483d8b;
 	margin:0;
+	display:grid;
+	height:100vh;
+}
+
+.body-display{
+	grid-template-rows: 1fr 1fr 12fr;
 }
 
 .content-wrapper{
 	display:flex;
 	justify-content:space-evenly;
 	align-items:center;
-	min-height:85vh;
 }
 
 .rulle-wrapper{
@@ -349,7 +354,7 @@ audio{
 
 .hold-rulle1{
 	position:absolute;
-	left:90px;
+	left:130px;
 	top:5px;
 	padding: 4px 30px;
 	border:none;
@@ -358,6 +363,7 @@ audio{
 	color:white;
 	outline: none;
 	cursor:pointer;
+	transform: translate(-50%,0);
 }
 .hold-rulle2{
 	position:absolute;
@@ -374,7 +380,7 @@ audio{
 }
 .hold-rulle3{
 	position:absolute;
-	right:90px;
+	right:130px;
 	top:5px;
 	padding: 4px 30px;
 	border:none;
@@ -383,6 +389,7 @@ audio{
 	color:white;
 	outline: none;
 	cursor:pointer;
+	transform: translate(50%,0);
 }
 
 }

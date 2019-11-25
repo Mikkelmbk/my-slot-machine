@@ -1,4 +1,5 @@
 (function () {
+    let bodyElement = document.querySelector('body');
     let contentWrapperElement = document.querySelector('.content-wrapper');
     let controlsElement = document.querySelector('.controls');
     let logoutBtnElement = document.querySelector('.logout-btn');
@@ -47,6 +48,7 @@
 
     auth.onAuthStateChanged((user) => {
         if (user == null) {
+            bodyElement.classList.remove('body-display');
             currentlySpinning = true;
             controlsElement.id = "hidden";
             gameResultElement.id = "hidden";
@@ -154,6 +156,7 @@
 
         } //user null check ends
         else {
+            bodyElement.classList.add('body-display');
 
             db.collection('users').doc(user.uid).get()
                 .then((userData) => {
@@ -275,6 +278,7 @@
 
 
     Data.sort((a, b) => (b.rarity > a.rarity) ? 1 : -1); // If b.rarity is bigger than a.rarity, return 1 to the sort function, else return -1
+
     Data.forEach((figurObjekt) => {
         let gevinstDisplayFigurElement = document.createElement('li');
         prizeDisplayElement.appendChild(gevinstDisplayFigurElement);
@@ -470,19 +474,21 @@
         }
         else {
             depositCoinBtnElement.blur();
-            gameResultElement.innerHTML = "Der kan kun indsættes tal i input feltet";
+            gameResultElement.innerHTML = "Only numbers are allowed";
             coinDepositElement.style.backgroundColor = "red";
         }
         coinDepositElement.blur();
     }
 
     function keyPress(e) {
+        console.log(e);
         if (e.keyCode == 32 && !currentlySpinning) {
             userInitiatedMachine();
         }
         if (e.keyCode == 13 && coinInputFieldHasFocus) {
             depositCoins();
         }
+
         if (e.keyCode == 49 && !holdRulle1BtnElement.disabled && !coinInputFieldHasFocus) {
             holdRulle1();
         }
@@ -490,6 +496,17 @@
             holdRulle2();
         }
         if (e.keyCode == 51 && !holdRulle3BtnElement.disabled && !coinInputFieldHasFocus) {
+            holdRulle3();
+        }
+
+        // Numpad 1, 2, 3
+        if (e.keyCode == 97 && !holdRulle1BtnElement.disabled && !coinInputFieldHasFocus) {
+            holdRulle1();
+        }
+        if (e.keyCode == 98 && !holdRulle2BtnElement.disabled && !coinInputFieldHasFocus) {
+            holdRulle2();
+        }
+        if (e.keyCode == 99 && !holdRulle3BtnElement.disabled && !coinInputFieldHasFocus) {
             holdRulle3();
         }
     }
@@ -605,6 +622,8 @@
             setTimeout(() => {
                 coinDepositElement.focus();
                 clearInterval(autoSpinInterval);
+                autoSpinActive = false;
+                autoBtnElement.innerHTML = "Auto Spil";
             }, 10);
         }
         updateCoinAndSpinCount();
@@ -612,11 +631,7 @@
 
     function updateCoinAndSpinCount() {
         coinsElement.innerHTML = `Coin: ${coins.toString()}`;
-        if (freeSpinCount <= 1) {
-            freeSpinsDisplayElement.innerHTML = `Free Spin: ${freeSpinCount.toString()}`;
-            return;
-        }
-        freeSpinsDisplayElement.innerHTML = `Free Spins: ${freeSpinCount.toString()}`;
+        freeSpinsDisplayElement.innerHTML = `Free Spin: ${freeSpinCount.toString()}`;
     }
 
     function randomIntFromInterval(min, max) {
