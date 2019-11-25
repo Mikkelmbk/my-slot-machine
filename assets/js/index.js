@@ -2,36 +2,36 @@
     let contentWrapperElement = document.querySelector('.content-wrapper');
     let controlsElement = document.querySelector('.controls');
     let logoutBtnElement = document.querySelector('.logout-btn');
-    let rulle1Overflowing = document.querySelector('.rulle1-overflowing');
-    let rulle2Overflowing = document.querySelector('.rulle2-overflowing');
-    let rulle3Overflowing = document.querySelector('.rulle3-overflowing');
-    let gevinstDisplayElement = document.querySelector('.gevinst-ul');
+    let rulle1OverflowingElement = document.querySelector('.rulle1-overflowing');
+    let rulle2OverflowingElement = document.querySelector('.rulle2-overflowing');
+    let rulle3OverflowingElement = document.querySelector('.rulle3-overflowing');
+    let prizeDisplayElement = document.querySelector('.gevinst-ul');
     let startBtnElement = document.querySelector('.start-btn');
     let autoBtnElement = document.querySelector('.auto-btn');
-    let betalMønterBtnElement = document.querySelector('.betal-mønter');
-    let møntIndkast = document.querySelector('.mønt-indkast');
-    let møntIndkastHasFocus = false;
-    let rulle1Displayed = document.querySelector('.rulle1');
-    let mønterElement = document.querySelector('.mønter');
+    let depositCoinBtnElement = document.querySelector('.betal-mønter');
+    let coinDepositElement = document.querySelector('.mønt-indkast');
+    let coinInputFieldHasFocus = false;
+    let rulle1Element = document.querySelector('.rulle1');
+    let coinsElement = document.querySelector('.mønter');
     let winRateDisplayElement = document.querySelector('.win-rate');
-    let spilResultat = document.querySelector('.spil-resultat');
+    let gameResultElement = document.querySelector('.spil-resultat');
     let freeSpinsDisplayElement = document.querySelector('.free-spins');
     let gameCountDisplayElement = document.querySelector('.game-count');
     let audioElement = document.querySelector('audio');
 
-    let holdRulle1Btn = document.querySelector('.hold-rulle1');
-    holdRulle1Btn.disabled = true;
+    let holdRulle1BtnElement = document.querySelector('.hold-rulle1');
+    holdRulle1BtnElement.disabled = true;
     let holdRulle1Boolean = false;
-    let holdRulle2Btn = document.querySelector('.hold-rulle2');
-    holdRulle2Btn.disabled = true;
+    let holdRulle2BtnElement = document.querySelector('.hold-rulle2');
+    holdRulle2BtnElement.disabled = true;
     let holdRulle2Boolean = false;
-    let holdRulle3Btn = document.querySelector('.hold-rulle3');
-    holdRulle3Btn.disabled = true;
+    let holdRulle3BtnElement = document.querySelector('.hold-rulle3');
+    holdRulle3BtnElement.disabled = true;
     let holdRulle3Boolean = false;
     let rulleLockCount = 0;
 
-    let figurHøjde = Math.floor(rulle1Displayed.offsetHeight / 3);
-    let mønter = 200;
+    let figureHeight = Math.floor(rulle1Element.offsetHeight / 3);
+    let coins = 200;
     let allowSpin = 10;
     let currentlySpinning = true;
     let freeSpinCount = 0;
@@ -49,7 +49,7 @@
         if (user == null) {
             currentlySpinning = true;
             controlsElement.id = "hidden";
-            spilResultat.id = "hidden";
+            gameResultElement.id = "hidden";
             contentWrapperElement.innerHTML = `
         <div class="form-container">
             <form class="loginForm">
@@ -158,7 +158,7 @@
             db.collection('users').doc(user.uid).get()
                 .then((userData) => {
                     // console.log(userData.data());
-                    mønter = userData.data().coin;
+                    coins = userData.data().coin;
                     freeSpinCount = userData.data().freespin;
                     updateCoinAndSpinCount();
                     currentlySpinning = false;
@@ -277,7 +277,7 @@
     Data.sort((a, b) => (b.rarity > a.rarity) ? 1 : -1); // If b.rarity is bigger than a.rarity, return 1 to the sort function, else return -1
     Data.forEach((figurObjekt) => {
         let gevinstDisplayFigurElement = document.createElement('li');
-        gevinstDisplayElement.appendChild(gevinstDisplayFigurElement);
+        prizeDisplayElement.appendChild(gevinstDisplayFigurElement);
         let rarityDisplay = document.createElement('p');
         rarityDisplay.innerHTML = `Free Spins: ${figurObjekt.freeSpin}`;
         gevinstDisplayFigurElement.appendChild(rarityDisplay);
@@ -317,18 +317,18 @@
     makeRulle3();
 
 
-    møntIndkast.addEventListener('focusin', () => {
-        møntIndkastHasFocus = true;
+    coinDepositElement.addEventListener('focusin', () => {
+        coinInputFieldHasFocus = true;
     });
-    møntIndkast.addEventListener('focusout', () => {
-        møntIndkastHasFocus = false;
+    coinDepositElement.addEventListener('focusout', () => {
+        coinInputFieldHasFocus = false;
     });
 
     logoutBtnElement.addEventListener('click', () => {
         auth.signOut();
     })
 
-    betalMønterBtnElement.addEventListener('click', () => {
+    depositCoinBtnElement.addEventListener('click', () => {
         depositCoins();
     });
 
@@ -357,22 +357,22 @@
         ;
     });
 
-    holdRulle1Btn.addEventListener('click', (event) => {
+    holdRulle1BtnElement.addEventListener('click', (event) => {
         holdRulle1();
-        holdRulle1Btn.blur();
+        holdRulle1BtnElement.blur();
     });
 
-    holdRulle2Btn.addEventListener('click', (event) => {
+    holdRulle2BtnElement.addEventListener('click', (event) => {
         holdRulle2();
-        holdRulle2Btn.blur();
+        holdRulle2BtnElement.blur();
     });
 
-    holdRulle3Btn.addEventListener('click', (event) => {
+    holdRulle3BtnElement.addEventListener('click', (event) => {
         holdRulle3();
-        holdRulle3Btn.blur();
+        holdRulle3BtnElement.blur();
     });
 
-    rulle1Overflowing.addEventListener('transitionend', () => {
+    rulle1OverflowingElement.addEventListener('transitionend', () => {
         rulle1VenstreTop = rullerArray[0][rulle1Index];
         rulle1VenstreCenter = rullerArray[0][rulle1Index + 1];
         rulle1VenstreBund = rullerArray[0][rulle1Index + 2];
@@ -382,7 +382,7 @@
         }
     });
 
-    rulle2Overflowing.addEventListener('transitionend', () => {
+    rulle2OverflowingElement.addEventListener('transitionend', () => {
         rulle2Center = rullerArray[1][rulle2Index + 1];
         if (holdRulle3Boolean) {
             console.log("Hvis rulle 3 bliver fastholdt");
@@ -390,7 +390,7 @@
         }
     });
 
-    rulle3Overflowing.addEventListener('transitionend', () => {
+    rulle3OverflowingElement.addEventListener('transitionend', () => {
         rulle3HøjreTop = rullerArray[2][rulle3Index];
         rulle3HøjreCenter = rullerArray[2][rulle3Index + 1];
         rulle3HøjreBund = rullerArray[2][rulle3Index + 2];
@@ -418,96 +418,96 @@
     }
 
     function makeRulle1() {
-        rulle1Overflowing.style.transition = "unset";
-        rulle1Overflowing.innerHTML = "";
-        rulle1Overflowing.style.marginTop = "0";
+        rulle1OverflowingElement.style.transition = "unset";
+        rulle1OverflowingElement.innerHTML = "";
+        rulle1OverflowingElement.style.marginTop = "0";
         rullerArray[0].forEach((rulle1) => {
             let rulleFigur = document.createElement('img');
-            rulleFigur.style.height = `${figurHøjde}px`;
+            rulleFigur.style.height = `${figureHeight}px`;
             rulleFigur.src = `assets/image/${rulle1.file}`;
             rulleFigur.classList.add('rulle-figur');
-            rulle1Overflowing.appendChild(rulleFigur);
+            rulle1OverflowingElement.appendChild(rulleFigur);
         });
 
 
     }
 
     function makeRulle2() {
-        rulle2Overflowing.style.transition = "unset";
-        rulle2Overflowing.innerHTML = "";
-        rulle2Overflowing.style.marginTop = "0";
+        rulle2OverflowingElement.style.transition = "unset";
+        rulle2OverflowingElement.innerHTML = "";
+        rulle2OverflowingElement.style.marginTop = "0";
         rullerArray[1].forEach((rulle2) => {
             let rulleFigur = document.createElement('img');
-            rulleFigur.style.height = `${figurHøjde}px`;
+            rulleFigur.style.height = `${figureHeight}px`;
             rulleFigur.src = `assets/image/${rulle2.file}`;
             rulleFigur.classList.add('rulle-figur');
-            rulle2Overflowing.appendChild(rulleFigur);
+            rulle2OverflowingElement.appendChild(rulleFigur);
         });
     }
 
     function makeRulle3() {
-        rulle3Overflowing.style.transition = "unset";
-        rulle3Overflowing.innerHTML = "";
-        rulle3Overflowing.style.marginTop = "0";
+        rulle3OverflowingElement.style.transition = "unset";
+        rulle3OverflowingElement.innerHTML = "";
+        rulle3OverflowingElement.style.marginTop = "0";
         rullerArray[2].forEach((rulle3) => {
             let rulleFigur = document.createElement('img');
-            rulleFigur.style.height = `${figurHøjde}px`;
+            rulleFigur.style.height = `${figureHeight}px`;
             rulleFigur.src = `assets/image/${rulle3.file}`;
             rulleFigur.classList.add('rulle-figur');
-            rulle3Overflowing.appendChild(rulleFigur);
+            rulle3OverflowingElement.appendChild(rulleFigur);
         });
     }
 
     function depositCoins() {
-        if (!isNaN(parseInt(møntIndkast.value))) {
-            mønter += parseInt(møntIndkast.value);
-            møntIndkast.value = "";
+        if (!isNaN(parseInt(coinDepositElement.value))) {
+            coins += parseInt(coinDepositElement.value);
+            coinDepositElement.value = "";
             updateCoinAndSpinCount();
-            spilResultat.innerHTML = "";
-            betalMønterBtnElement.blur();
-            møntIndkast.style.backgroundColor = "white";
+            gameResultElement.innerHTML = "";
+            depositCoinBtnElement.blur();
+            coinDepositElement.style.backgroundColor = "white";
             updateDatabase(auth.currentUser.uid);
         }
         else {
-            betalMønterBtnElement.blur();
-            spilResultat.innerHTML = "Der kan kun indsættes tal i input feltet";
-            møntIndkast.style.backgroundColor = "red";
+            depositCoinBtnElement.blur();
+            gameResultElement.innerHTML = "Der kan kun indsættes tal i input feltet";
+            coinDepositElement.style.backgroundColor = "red";
         }
-        møntIndkast.blur();
+        coinDepositElement.blur();
     }
 
     function keyPress(e) {
         if (e.keyCode == 32 && !currentlySpinning) {
             userInitiatedMachine();
         }
-        if (e.keyCode == 13 && møntIndkastHasFocus) {
+        if (e.keyCode == 13 && coinInputFieldHasFocus) {
             depositCoins();
         }
-        if (e.keyCode == 49 && !holdRulle1Btn.disabled && !møntIndkastHasFocus) {
+        if (e.keyCode == 49 && !holdRulle1BtnElement.disabled && !coinInputFieldHasFocus) {
             holdRulle1();
         }
-        if (e.keyCode == 50 && !holdRulle2Btn.disabled && !møntIndkastHasFocus) {
+        if (e.keyCode == 50 && !holdRulle2BtnElement.disabled && !coinInputFieldHasFocus) {
             holdRulle2();
         }
-        if (e.keyCode == 51 && !holdRulle3Btn.disabled && !møntIndkastHasFocus) {
+        if (e.keyCode == 51 && !holdRulle3BtnElement.disabled && !coinInputFieldHasFocus) {
             holdRulle3();
         }
     }
 
     function holdRulle1() {
-        if (!holdRulle1Boolean && mønter >= 10) {
+        if (!holdRulle1Boolean && coins >= 10) {
             if (rulleLockCount <= 1 && !currentlySpinning) {
-                holdRulle1Btn.style.backgroundColor = "green";
-                holdRulle1Btn.innerHTML = "Release";
+                holdRulle1BtnElement.style.backgroundColor = "green";
+                holdRulle1BtnElement.innerHTML = "Release";
                 holdRulle1Boolean = true;
-                mønter -= 10;
+                coins -= 10;
                 rulleLockCount++;
                 updateCoinAndSpinCount();
             }
         }
         else {
-            holdRulle1Btn.style.backgroundColor = "rgb(223, 61, 61)";
-            holdRulle1Btn.innerHTML = "Hold";
+            holdRulle1BtnElement.style.backgroundColor = "rgb(223, 61, 61)";
+            holdRulle1BtnElement.innerHTML = "Hold";
             holdRulle1Boolean = false;
             rulleLockCount--;
             if (rulleLockCount < 0) {
@@ -517,19 +517,19 @@
     }
 
     function holdRulle2() {
-        if (!holdRulle2Boolean && mønter >= 10) {
+        if (!holdRulle2Boolean && coins >= 10) {
             if (rulleLockCount <= 1 && !currentlySpinning) {
-                holdRulle2Btn.style.backgroundColor = "green";
-                holdRulle2Btn.innerHTML = "Release";
+                holdRulle2BtnElement.style.backgroundColor = "green";
+                holdRulle2BtnElement.innerHTML = "Release";
                 holdRulle2Boolean = true;
-                mønter -= 10;
+                coins -= 10;
                 rulleLockCount++;
                 updateCoinAndSpinCount();
             }
         }
         else {
-            holdRulle2Btn.style.backgroundColor = "rgb(223, 61, 61)";
-            holdRulle2Btn.innerHTML = "Hold";
+            holdRulle2BtnElement.style.backgroundColor = "rgb(223, 61, 61)";
+            holdRulle2BtnElement.innerHTML = "Hold";
             holdRulle2Boolean = false;
             rulleLockCount--;
             if (rulleLockCount < 0) {
@@ -539,19 +539,19 @@
     }
 
     function holdRulle3() {
-        if (!holdRulle3Boolean && mønter >= 10) {
+        if (!holdRulle3Boolean && coins >= 10) {
             if (rulleLockCount <= 1 && !currentlySpinning) {
-                holdRulle3Btn.style.backgroundColor = "green";
-                holdRulle3Btn.innerHTML = "Release";
+                holdRulle3BtnElement.style.backgroundColor = "green";
+                holdRulle3BtnElement.innerHTML = "Release";
                 holdRulle3Boolean = true;
-                mønter -= 10;
+                coins -= 10;
                 rulleLockCount++;
                 updateCoinAndSpinCount();
             }
         }
         else {
-            holdRulle3Btn.style.backgroundColor = "rgb(223, 61, 61)";
-            holdRulle3Btn.innerHTML = "Hold";
+            holdRulle3BtnElement.style.backgroundColor = "rgb(223, 61, 61)";
+            holdRulle3BtnElement.innerHTML = "Hold";
             holdRulle3Boolean = false;
             rulleLockCount--;
             if (rulleLockCount < 0) {
@@ -561,16 +561,16 @@
     }
 
     function userInitiatedMachine() {
-        if (mønter >= allowSpin || freeSpinCount != 0) {
+        if (coins >= allowSpin || freeSpinCount != 0) {
             gameCount++;
             currentlySpinning = true;
-            spilResultat.innerHTML = "";
+            gameResultElement.innerHTML = "";
             audioElement.pause();
             audioElement.currentTime = 0;
             startBtnElement.disabled = true;
-            holdRulle1Btn.disabled = true;
-            holdRulle2Btn.disabled = true;
-            holdRulle3Btn.disabled = true;
+            holdRulle1BtnElement.disabled = true;
+            holdRulle2BtnElement.disabled = true;
+            holdRulle3BtnElement.disabled = true;
 
             if (!holdRulle1Boolean) {
                 makeRulle1();
@@ -583,7 +583,7 @@
             }
 
             if (freeSpinCount == 0) {
-                mønter -= allowSpin;
+                coins -= allowSpin;
             }
             if (freeSpinCount > 0) {
                 freeSpinCount--;
@@ -601,9 +601,9 @@
             startSpinning(rulle1Index, rulle2Index, rulle3Index);
         }
         else {
-            spilResultat.innerHTML = "Indsæt flere penge for at spille videre";
+            gameResultElement.innerHTML = "Indsæt flere penge for at spille videre";
             setTimeout(() => {
-                møntIndkast.focus();
+                coinDepositElement.focus();
                 clearInterval(autoSpinInterval);
             }, 10);
         }
@@ -611,7 +611,7 @@
     }
 
     function updateCoinAndSpinCount() {
-        mønterElement.innerHTML = `Coin: ${mønter.toString()}`;
+        coinsElement.innerHTML = `Coin: ${coins.toString()}`;
         if (freeSpinCount <= 1) {
             freeSpinsDisplayElement.innerHTML = `Free Spin: ${freeSpinCount.toString()}`;
             return;
@@ -626,25 +626,25 @@
     function startSpinning(Number1, Number2, Number3) {
         setTimeout(() => {
             if (holdRulle1Boolean) {
-                rulle1Overflowing.style.transition = "unset";
+                rulle1OverflowingElement.style.transition = "unset";
             }
             else {
-                rulle1Overflowing.style.transition = "all 3s ease-out";
-                rulle1Overflowing.style.marginTop = `${-Number1 * figurHøjde}px`;
+                rulle1OverflowingElement.style.transition = "all 3s ease-out";
+                rulle1OverflowingElement.style.marginTop = `${-Number1 * figureHeight}px`;
             }
             if (holdRulle2Boolean) {
-                rulle2Overflowing.style.transition = "unset";
+                rulle2OverflowingElement.style.transition = "unset";
             }
             else {
-                rulle2Overflowing.style.transition = "all 4s ease-out";
-                rulle2Overflowing.style.marginTop = `${-Number2 * figurHøjde}px`;
+                rulle2OverflowingElement.style.transition = "all 4s ease-out";
+                rulle2OverflowingElement.style.marginTop = `${-Number2 * figureHeight}px`;
             }
             if (holdRulle3Boolean) {
-                rulle3Overflowing.style.transition = "unset";
+                rulle3OverflowingElement.style.transition = "unset";
             }
             else {
-                rulle3Overflowing.style.transition = "all 5s ease-out";
-                rulle3Overflowing.style.marginTop = `${-Number3 * figurHøjde}px`;
+                rulle3OverflowingElement.style.transition = "all 5s ease-out";
+                rulle3OverflowingElement.style.marginTop = `${-Number3 * figureHeight}px`;
             }
 
         }, 15);
@@ -652,9 +652,9 @@
 
     function winOrLose() {
 
-        holdRulle1Btn.disabled = false;
-        holdRulle2Btn.disabled = false;
-        holdRulle3Btn.disabled = false;
+        holdRulle1BtnElement.disabled = false;
+        holdRulle2BtnElement.disabled = false;
+        holdRulle3BtnElement.disabled = false;
 
         if (holdRulle1Boolean) {
             holdRulle1();
@@ -668,8 +668,8 @@
         if (rulle1VenstreCenter.name === rulle2Center.name && rulle2Center.name === rulle3HøjreCenter.name) {
             winCount++;
             startBtnElement.disabled = false;
-            mønter += rulle1VenstreCenter.value;
-            spilResultat.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rulle2Center.file}"> og vandt ${rulle1VenstreCenter.value}`;
+            coins += rulle1VenstreCenter.value;
+            gameResultElement.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rulle2Center.file}"> og vandt ${rulle1VenstreCenter.value}`;
             audioElement.play();
             audioElement.volume = 0.1;
             updateCoinAndSpinCount();
@@ -680,7 +680,7 @@
             winCount++;
             startBtnElement.disabled = false;
             freeSpinTracker();
-            spilResultat.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rulle2Center.file}"> på tværs, Du får ${rulle2Center.freeSpin} free spins`;
+            gameResultElement.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rulle2Center.file}"> på tværs, Du får ${rulle2Center.freeSpin} free spins`;
             updateCoinAndSpinCount();
         }
 
@@ -688,13 +688,13 @@
             winCount++;
             startBtnElement.disabled = false;
             freeSpinTracker();
-            spilResultat.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rulle2Center.file}"> på tværs, Du får ${rulle2Center.freeSpin} free spins`;
+            gameResultElement.innerHTML = `Du ramte 3 <img class="spil-resultat-image" src="assets/image/${rulle2Center.file}"> på tværs, Du får ${rulle2Center.freeSpin} free spins`;
             updateCoinAndSpinCount();
         }
 
         else {
             startBtnElement.disabled = false;
-            spilResultat.innerHTML = "Du vandt ikke, Prøv igen!";
+            gameResultElement.innerHTML = "Du vandt ikke, Prøv igen!";
         }
         if (gameCount / winCount != Infinity) {
             winRateDisplayElement.innerHTML = `Win-rate: ${((winCount / gameCount) * 100).toFixed(1)}%`;
@@ -708,7 +708,7 @@
 
     function updateDatabase(userUid) {
         db.collection('users').doc(userUid).update({
-            coin: mønter,
+            coin: coins,
             freespin: freeSpinCount,
         });
     }
