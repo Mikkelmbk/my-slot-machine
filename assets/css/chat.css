@@ -1,5 +1,14 @@
-.chat{
-    background-color: #111111;
-    height: 5em;
-    width: 5em;
+.chat {
+    background-color: #ededed;
+    height: 500px;
+    width: 100%;
+}
+
+.chat-form {
+    display: flex;
+    height: 30px;
+}
+#chat-form__message{
+    width: 100%;
+    padding: .5em
 }
