@@ -133,8 +133,10 @@ auth.onAuthStateChanged((user) => {
                         fullname: name,
                         coin: 200,
                         freespin: 0,
-                        games: 0,
-                        wins: 0,
+                        lifeTimeGames: 0,
+                        lifeTimeWins: 0,
+                        sessionGames: 0,
+                        sessionWins: 0,
 
 
                     })
@@ -179,6 +181,10 @@ auth.onAuthStateChanged((user) => {
                 // console.log(userData.data());
                 coins = userData.data().coin;
                 freeSpinCount = userData.data().freespin;
+                gameCount = userData.data().sessionGames;
+                winCount = userData.data().sessionWins;
+                winRateDisplayElement.innerHTML = `Win-rate: ${((winCount / gameCount) * 100).toFixed(1)}%`;
+                gameCountDisplayElement.innerHTML = `T: ${userData.data().sessionGames} | L: ${(userData.data().sessionGames - userData.data().sessionWins)} | W: ${userData.data().sessionWins}`;
                 updateCoinAndSpinCount();
                 currentlySpinning = false;
             })
@@ -349,12 +355,14 @@ coinDepositElement.addEventListener('focusout', () => {
 logoutBtnElement.addEventListener('click', () => {
     db.collection('users').doc(auth.currentUser.uid).get()
         .then((Data) => {
-            let totalGames = Data.data().games + gameCount;
-            let totalWins = Data.data().wins + winCount;
+            let totalGames = Data.data().lifeTimeGames + gameCount;
+            let totalWins = Data.data().lifeTimeWins + winCount;
 
             db.collection('users').doc(auth.currentUser.uid).update({
-                games: totalGames,
-                wins: totalWins,
+                lifeTimeGames: totalGames,
+                lifeTimeWins: totalWins,
+                sessionGames: 0,
+                sessionWins: 0,
             })
         })
         .then(()=>{
@@ -784,6 +792,8 @@ function updateDatabase(userUid) {
     db.collection('users').doc(userUid).update({
         coin: coins,
         freespin: freeSpinCount,
+        sessionGames: gameCount,
+        sessionWins: winCount
     });
 
 }
