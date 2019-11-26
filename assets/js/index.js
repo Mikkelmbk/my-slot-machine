@@ -68,6 +68,8 @@ auth.onAuthStateChanged((user) => {
         currentlySpinning = true;
         controlsElement.id = "hidden";
         gameResultContainerElement.id = "hidden";
+        contentWrapperElement.classList.add('content-wrapper-logged-out');
+        contentWrapperElement.classList.remove('content-wrapper-logged-in');
         contentWrapperElement.innerHTML = `
         <div class="form-container">
             <form class="loginForm">
@@ -177,6 +179,8 @@ auth.onAuthStateChanged((user) => {
     } //user null check ends
     else {
         bodyElement.classList.add('body-display');
+        contentWrapperElement.classList.remove('content-wrapper-logged-out');
+        contentWrapperElement.classList.add('content-wrapper-logged-in');
 
         db.collection('users').doc(user.uid).get()
             .then((userData) => {
@@ -445,7 +449,9 @@ depositCoinBtnElement.addEventListener('click', () => {
 document.addEventListener('keydown', keyPress);
 
 startBtnElement.addEventListener('click', () => {
-    userInitiatedMachine();
+    if(!currentlySpinning){
+        userInitiatedMachine();
+    }
 });
 
 autoBtnElement.addEventListener('click', () => {
