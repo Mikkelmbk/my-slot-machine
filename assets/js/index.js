@@ -26,6 +26,8 @@ let gameInfoBtnElement = document.querySelector('.game-info');
 let holdRulle1BtnElement = document.querySelector('.hold-rulle1');
 let holdRulle2BtnElement = document.querySelector('.hold-rulle2');
 let holdRulle3BtnElement = document.querySelector('.hold-rulle3');
+let scoreboardTableElement = document.querySelector('.scoreboard-container');
+let scoreboardWinRateToggleElement = document.querySelector('.table-winrate');
 // Reference Section Ends.
 
 // Conditions Section Starts.
@@ -178,12 +180,16 @@ auth.onAuthStateChanged((user) => {
 
         db.collection('users').doc(user.uid).get()
             .then((userData) => {
-                // console.log(userData.data());
                 coins = userData.data().coin;
                 freeSpinCount = userData.data().freespin;
                 gameCount = userData.data().sessionGames;
                 winCount = userData.data().sessionWins;
-                winRateDisplayElement.innerHTML = `Win-rate: ${((winCount / gameCount) * 100).toFixed(1)}%`;
+
+                if (gameCount != 0 && winCount != 0) {
+                    console.log(gameCount);
+                    console.log(winCount);
+                    winRateDisplayElement.innerHTML = `Win-rate: ${((winCount / gameCount) * 100).toFixed(1)}%`;
+                }
                 gameCountDisplayElement.innerHTML = `T: ${userData.data().sessionGames} | L: ${(userData.data().sessionGames - userData.data().sessionWins)} | W: ${userData.data().sessionWins}`;
                 updateCoinAndSpinCount();
                 currentlySpinning = false;
@@ -194,6 +200,64 @@ auth.onAuthStateChanged((user) => {
     }
 
 });
+
+
+db.collection('users').orderBy("sessionWins","desc").onSnapshot(snapshot => {
+    let changes = snapshot.docChanges();
+    changes.forEach((change)=>{
+        console.log("Der er sket en ændring")
+        if(change.type == "added"){
+            console.log(change.doc.data());
+
+            let tr = document.createElement('tr');
+            tr.setAttribute("data-tr-id", change.doc.id);
+            let tdName = document.createElement('td');
+            let tdwinRate = document.createElement('td');
+            let tdGames = document.createElement('td');
+            let tdWins = document.createElement('td');
+
+            tdName.innerHTML = change.doc.data().fullname;
+            if(change.doc.data().sessionGames != 0 && change.doc.data().sessionWins != 0){
+                tdwinRate.innerHTML = `${((change.doc.data().sessionWins / change.doc.data().sessionGames)* 100).toFixed(1)}%`
+            }
+            else{
+                tdwinRate.innerHTML = `0%`;
+            }
+
+            tdGames.innerHTML = change.doc.data().sessionGames;
+            tdWins.innerHTML = change.doc.data().sessionWins;
+
+
+            scoreboardTableElement.appendChild(tr);
+            tr.appendChild(tdName);
+            tr.appendChild(tdwinRate);
+            tr.appendChild(tdGames);
+            tr.appendChild(tdWins);
+
+        }
+        if(change.type == "modified"){
+            let trToChange = scoreboardTableElement.querySelector(`[data-tr-id=${change.doc.id}]`);
+
+            if(change.doc.data().sessionGames != 0 && change.doc.data().sessionWins != 0){
+                trToChange.children[1].innerHTML = `${((change.doc.data().sessionWins / change.doc.data().sessionGames)* 100).toFixed(1)}%`
+            }
+            else{
+                trToChange.children[1].innerHTML = `0%`;
+            }
+
+            trToChange.children[2].innerHTML = change.doc.data().sessionGames;
+            trToChange.children[3].innerHTML = change.doc.data().sessionWins;
+
+            
+        }
+
+        if(change.type == "removed"){
+            scoreboardTableElement.querySelector(`[data-tr-id=${change.doc.id}]`).remove();
+
+        }
+    })
+
+})
 
 {
     // let Data = [
@@ -345,6 +409,7 @@ makeRulle2();
 makeRulle3();
 
 // EventListeners Section Start.
+
 coinDepositElement.addEventListener('focusin', () => {
     coinInputFieldHasFocus = true;
 });
@@ -365,8 +430,11 @@ logoutBtnElement.addEventListener('click', () => {
                 sessionWins: 0,
             })
         })
-        .then(()=>{
-            auth.signOut();
+        .then(() => {
+            setTimeout(() => {
+
+                auth.signOut();
+            }, 250)
         })
 })
 
