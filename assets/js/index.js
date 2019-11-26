@@ -1,4 +1,4 @@
-(function () {
+// (function () {
     let bodyElement = document.querySelector('body');
     let contentWrapperElement = document.querySelector('.content-wrapper');
     let controlsElement = document.querySelector('.controls');
@@ -773,5 +773,5 @@
     }
     // Function Definition Section Ends.
 
-}());
+// }());
 
