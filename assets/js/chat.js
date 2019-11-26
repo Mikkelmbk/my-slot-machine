@@ -45,8 +45,17 @@ function renderChatMessage(doc){
     clone.querySelector(".chat-message__timesent").textContent = `(${postHour}:${postMinute})`;
 
     db.collection("users").doc(doc.data().author).get().then((userDoc)=>{
-        clone.querySelector(".chat-message__author").textContent = userDoc.data().fullname;
-        chatMessageContainerElem.appendChild(clone);
+        if(userDoc.data() != undefined){
+            if(userDoc.data().picture != null){
+                clone.querySelector(".chat-message__userimg").src = userDoc.data().picture;
+            }
+            clone.querySelector(".chat-message__author").textContent = userDoc.data().fullname;
+            chatMessageContainerElem.appendChild(clone);
+            let messages = chatMessageContainerElem.querySelectorAll(".chat-message")
+            chatMessageContainerElem.scrollTop = messages[messages.length - 1].offsetTop
+        }else{
+            db.collection("chat").doc(doc.id).delete()
+        }
     })
 }
 
