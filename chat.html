@@ -13,7 +13,7 @@
 	<title>Slot Machine</title>
 </head>
 
-<body>
+<body class="chatbody">
 
 	<div class="chat">
 		<div class="chat-header">
@@ -25,7 +25,18 @@
 			<input type="text" name="chatFormMessage" id="chat-form__message" class="chatFormMessage"
 				placeholder="Enter a message!">
 			<!-- <textarea name="chat-form__message" id="chat-form__message" placeholder="Enter a message!"></textarea> -->
+			<div class="chat-emojicontainer">
+				<label for="emojispopupcheckbox" name="chatFormEmojiBtn" class="chat-form__emoji-button"><i
+						class="far fa-smile"></i></i></label>
+				<input type="checkbox" class="hidden" name="emojispopupcheckbox" id="emojispopupcheckbox">
+				<div class="emojipopup">
+					<h2 class="emojipopup__title">Emojis 1.0</h2>
+					<div class="emojipopup-emojicontainer">
+					</div>
+				</div>
+			</div>
 			<button name="chatFormButton" class="chat-form__button">Send <i class="fas fa-paper-plane"></i></button>
+
 		</form>
 	</div>
 

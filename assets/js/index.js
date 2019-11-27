@@ -68,6 +68,8 @@ auth.onAuthStateChanged((user) => {
         currentlySpinning = true;
         controlsElement.id = "hidden";
         gameResultContainerElement.id = "hidden";
+        contentWrapperElement.classList.add('content-wrapper-logged-out');
+        contentWrapperElement.classList.remove('content-wrapper-logged-in');
         contentWrapperElement.innerHTML = `
         <div class="form-container">
             <form class="loginForm">
@@ -177,6 +179,8 @@ auth.onAuthStateChanged((user) => {
     } //user null check ends
     else {
         bodyElement.classList.add('body-display');
+        contentWrapperElement.classList.remove('content-wrapper-logged-out');
+        contentWrapperElement.classList.add('content-wrapper-logged-in');
 
         db.collection('users').doc(user.uid).get()
             .then((userData) => {
@@ -202,12 +206,12 @@ auth.onAuthStateChanged((user) => {
 });
 
 
-db.collection('users').orderBy("sessionWins","desc").onSnapshot(snapshot => {
+db.collection('users').orderBy("sessionWins", "desc").onSnapshot(snapshot => {
     let changes = snapshot.docChanges();
-    changes.forEach((change)=>{
-        console.log("Der er sket en ændring")
-        if(change.type == "added"){
-            console.log(change.doc.data());
+    changes.forEach((change) => {
+        // console.log("Der er sket en ændring")
+        if (change.type == "added") {
+            // console.log(change.doc.data());
 
             let tr = document.createElement('tr');
             tr.setAttribute("data-tr-id", change.doc.id);
@@ -217,10 +221,10 @@ db.collection('users').orderBy("sessionWins","desc").onSnapshot(snapshot => {
             let tdWins = document.createElement('td');
 
             tdName.innerHTML = change.doc.data().fullname;
-            if(change.doc.data().sessionGames != 0 && change.doc.data().sessionWins != 0){
-                tdwinRate.innerHTML = `${((change.doc.data().sessionWins / change.doc.data().sessionGames)* 100).toFixed(1)}%`
+            if (change.doc.data().sessionGames != 0 && change.doc.data().sessionWins != 0) {
+                tdwinRate.innerHTML = `${((change.doc.data().sessionWins / change.doc.data().sessionGames) * 100).toFixed(1)}%`
             }
-            else{
+            else {
                 tdwinRate.innerHTML = `0%`;
             }
 
@@ -235,23 +239,23 @@ db.collection('users').orderBy("sessionWins","desc").onSnapshot(snapshot => {
             tr.appendChild(tdWins);
 
         }
-        if(change.type == "modified"){
+        if (change.type == "modified") {
             let trToChange = scoreboardTableElement.querySelector(`[data-tr-id=${change.doc.id}]`);
 
-            if(change.doc.data().sessionGames != 0 && change.doc.data().sessionWins != 0){
-                trToChange.children[1].innerHTML = `${((change.doc.data().sessionWins / change.doc.data().sessionGames)* 100).toFixed(1)}%`
+            if (change.doc.data().sessionGames != 0 && change.doc.data().sessionWins != 0) {
+                trToChange.children[1].innerHTML = `${((change.doc.data().sessionWins / change.doc.data().sessionGames) * 100).toFixed(1)}%`
             }
-            else{
+            else {
                 trToChange.children[1].innerHTML = `0%`;
             }
 
             trToChange.children[2].innerHTML = change.doc.data().sessionGames;
             trToChange.children[3].innerHTML = change.doc.data().sessionWins;
 
-            
+
         }
 
-        if(change.type == "removed"){
+        if (change.type == "removed") {
             scoreboardTableElement.querySelector(`[data-tr-id=${change.doc.id}]`).remove();
 
         }
@@ -418,25 +422,11 @@ coinDepositElement.addEventListener('focusout', () => {
 });
 
 logoutBtnElement.addEventListener('click', () => {
-    db.collection('users').doc(auth.currentUser.uid).get()
-        .then((Data) => {
-            let totalGames = Data.data().lifeTimeGames + gameCount;
-            let totalWins = Data.data().lifeTimeWins + winCount;
 
-            db.collection('users').doc(auth.currentUser.uid).update({
-                lifeTimeGames: totalGames,
-                lifeTimeWins: totalWins,
-                sessionGames: 0,
-                sessionWins: 0,
-            })
-        })
-        .then(() => {
-            setTimeout(() => {
+    closingCode();
+});
 
-                auth.signOut();
-            }, 250)
-        })
-})
+window.onbeforeunload = closingCode;
 
 depositCoinBtnElement.addEventListener('click', () => {
     depositCoins();
@@ -445,7 +435,9 @@ depositCoinBtnElement.addEventListener('click', () => {
 document.addEventListener('keydown', keyPress);
 
 startBtnElement.addEventListener('click', () => {
-    userInitiatedMachine();
+    if (!currentlySpinning) {
+        userInitiatedMachine();
+    }
 });
 
 autoBtnElement.addEventListener('click', () => {
@@ -594,7 +586,7 @@ function depositCoins() {
         gameResultElement.innerHTML = "";
         depositCoinBtnElement.blur();
         coinDepositElement.style.backgroundColor = "white";
-        updateDatabase(auth.currentUser.uid);
+        updateSessionDb(auth.currentUser.uid);
     }
     else {
         depositCoinBtnElement.blur();
@@ -644,7 +636,7 @@ function holdRulle1() {
             coins -= 10;
             rulleLockCount++;
             updateCoinAndSpinCount();
-            updateDatabase(auth.currentUser.uid);
+            updateSessionDb(auth.currentUser.uid);
         }
     }
     else {
@@ -667,7 +659,7 @@ function holdRulle2() {
             coins -= 10;
             rulleLockCount++;
             updateCoinAndSpinCount();
-            updateDatabase(auth.currentUser.uid);
+            updateSessionDb(auth.currentUser.uid);
         }
     }
     else {
@@ -690,7 +682,7 @@ function holdRulle3() {
             coins -= 10;
             rulleLockCount++;
             updateCoinAndSpinCount();
-            updateDatabase(auth.currentUser.uid);
+            updateSessionDb(auth.currentUser.uid);
         }
     }
     else {
@@ -822,6 +814,7 @@ function winOrLose() {
         audioElement.play();
         audioElement.volume = 0.1;
         updateCoinAndSpinCount();
+        updateLifeTimeWinDb(auth.currentUser.uid);
 
     }
 
@@ -831,6 +824,7 @@ function winOrLose() {
         freeSpinTracker();
         gameResultElement.innerHTML = `You hit 3 <img class="spil-resultat-image" src="assets/image/${rulle2Center.file}"> Across, You get ${rulle2Center.freeSpin} free spins`;
         updateCoinAndSpinCount();
+        updateLifeTimeWinDb(auth.currentUser.uid);
     }
 
     else if (rulle1VenstreBund.name === rulle2Center.name && rulle2Center.name === rulle3HøjreTop.name) {
@@ -839,11 +833,13 @@ function winOrLose() {
         freeSpinTracker();
         gameResultElement.innerHTML = `You hit 3 <img class="spil-resultat-image" src="assets/image/${rulle2Center.file}"> Across, You get ${rulle2Center.freeSpin} free spins`;
         updateCoinAndSpinCount();
+        updateLifeTimeWinDb(auth.currentUser.uid);
     }
 
     else {
         startBtnElement.disabled = false;
         gameResultElement.innerHTML = "You lost, try again!";
+        updateLifeTimeGameDb(auth.currentUser.uid);
     }
     if (gameCount / winCount != Infinity) {
         winRateDisplayElement.innerHTML = `Win-rate: ${((winCount / gameCount) * 100).toFixed(1)}%`;
@@ -852,18 +848,35 @@ function winOrLose() {
 
     currentlySpinning = false;
 
-    updateDatabase(auth.currentUser.uid);
+    updateSessionDb(auth.currentUser.uid);
 }
 
-function updateDatabase(userUid) {
-
+function updateSessionDb(userUid) {
     db.collection('users').doc(userUid).update({
         coin: coins,
         freespin: freeSpinCount,
         sessionGames: gameCount,
         sessionWins: winCount
     });
+}
 
+function updateLifeTimeWinDb(userUid) {
+    db.collection('users').doc(userUid).get()
+        .then((userData) => {
+            db.collection('users').doc(userUid).update({
+                lifeTimeWins: userData.data().lifeTimeWins + 1,
+                lifeTimeGames: userData.data().lifeTimeGames + 1
+            });
+        })
+}
+
+function updateLifeTimeGameDb(userUid) {
+    db.collection('users').doc(userUid).get()
+        .then((userData) => {
+            db.collection('users').doc(userUid).update({
+                lifeTimeGames: userData.data().lifeTimeGames + 1
+            });
+        })
 }
 
 function freeSpinTracker() {
@@ -874,6 +887,17 @@ function clearingAutoInterval() {
     clearInterval(autoSpinInterval);
     autoSpinActive = false;
     autoBtnElement.innerHTML = "Auto Spil";
+}
+
+
+function closingCode() {
+    db.collection('users').doc(auth.currentUser.uid).update({
+        sessionGames: 0,
+        sessionWins: 0,
+    })
+        .then(() => {
+            auth.signOut();
+        })
 }
     // Function Definition Section Ends.
 
