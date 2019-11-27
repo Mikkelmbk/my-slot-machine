@@ -13,12 +13,12 @@ auth.onAuthStateChanged((user) => {
         chatFormElem.chatFormButton.disabled = false
         chatFormElem.chatFormMessage.placeholder = "Message..."
 
-        db.collection("chat").orderBy("postDate").onSnapshot(snapshot =>{
+        db.collection("chat").orderBy("postTime", "asc").onSnapshot(snapshot => {
             changes = snapshot.docChanges()
             changes.forEach(change => {
-                if(change.type == "added"){
+                if (change.type == "added") {
                     renderChatMessage(change.doc)
-                }else if(change.type == "removed"){
+                } else if (change.type == "removed") {
                     chatElem.querySelector(`[data-id='${change.doc.id}']`).remove()
                 }
             });
@@ -26,34 +26,34 @@ auth.onAuthStateChanged((user) => {
     }
 })
 
-function renderChatMessage(doc){
+function renderChatMessage(doc) {
 
     let clone = chatMessageTemplateElem.cloneNode(true)
 
     clone.setAttribute("data-id", doc.id)
     clone.querySelector(".chat-message__message").textContent = doc.data().message;
 
-    let postDate = doc.data().postDate.toDate();
+    let postDate = new Date(doc.data().postTime) ;
     let postHour = postDate.getHours()
-    if(postHour < 10){
+    if (postHour < 10) {
         postHour = `0${postHour}`
     }
     let postMinute = postDate.getMinutes()
-    if(postMinute < 10){
+    if (postMinute < 10) {
         postMinute = `0${postMinute}`
     }
     clone.querySelector(".chat-message__timesent").textContent = `(${postHour}:${postMinute})`;
 
-    db.collection("users").doc(doc.data().author).get().then((userDoc)=>{
-        if(userDoc.data() != undefined){
-            if(userDoc.data().picture != null){
+    db.collection("users").doc(doc.data().author).get().then((userDoc) => {
+        if (userDoc.data() != undefined) {
+            if (userDoc.data().picture != null) {
                 clone.querySelector(".chat-message__userimg").src = userDoc.data().picture;
             }
             clone.querySelector(".chat-message__author").textContent = userDoc.data().fullname;
             chatMessageContainerElem.appendChild(clone);
             let messages = chatMessageContainerElem.querySelectorAll(".chat-message")
             chatMessageContainerElem.scrollTop = messages[messages.length - 1].offsetTop
-        }else{
+        } else {
             db.collection("chat").doc(doc.id).delete()
         }
     })
@@ -61,11 +61,11 @@ function renderChatMessage(doc){
 
 chatFormElem.addEventListener("submit", (event) => {
     event.preventDefault()
-
+    let date = new Date()
     if (auth.currentUser != null) {
         if (chatFormElem.chatFormMessage.value != "") {
             db.collection("chat").add({
-                postDate: new Date(),
+                postTime: date.getTime(),
                 author: auth.currentUser.uid,
                 message: chatFormElem.chatFormMessage.value
             })
@@ -73,3 +73,68 @@ chatFormElem.addEventListener("submit", (event) => {
     }
     chatFormElem.reset()
 })
+let emojiContainer = document.querySelector(".emojipopup-emojicontainer")
+let chatFormEmojiBtnElem = chatFormElem.querySelector(".chat-form__emoji-button")
+let chatFormInputElem = chatFormElem.querySelector(".chatFormMessage")
+let inputStart, inputEnd
+let inputfocused = false;
+
+chatFormInputElem.addEventListener("keyup", () => {
+    updateInputSelection()
+})
+chatFormInputElem.addEventListener("mouseup", () => {
+    updateInputSelection()
+})
+
+function updateInputSelection() {
+    inputStart = chatFormElem.chatFormMessage.selectionStart;
+    inputEnd = chatFormElem.chatFormMessage.selectionEnd;
+}
+
+emojiContainer.addEventListener("click", (event) => {
+    if (event.target.classList.contains("emojipopup-emoji")) {
+        const value = chatFormElem.chatFormMessage.value;
+        
+        if(inputStart == undefined || inputStart == 0 && inputEnd == 0 || inputEnd == undefined){
+            chatFormElem.chatFormMessage.value += event.target.textContent;
+            inputStart = inputEnd = 2
+        }else{
+            chatFormElem.chatFormMessage.value = value.slice(0, inputStart) + event.target.textContent + value.slice(inputEnd);
+        }
+        
+        // update cursor to be at the end of insertion
+        chatFormElem.chatFormMessage.selectionStart = chatFormElem.chatFormMessage.selectionEnd = inputStart = inputEnd = inputStart + event.target.textContent.length
+        ;
+    }
+})
+
+
+let emojiRange = [
+    [128512, 128591], [9986, 10160], [128640, 128704]
+];
+
+for (var i = 0; i < emojiRange.length; i++) {
+    let range = emojiRange[i];
+    for (var x = range[0]; x < range[1]; x++) {
+        let emoji = document.createElement('span');
+        emoji.innerHTML = "&#" + x + ";";
+        emoji.classList.add("emojipopup-emoji")
+        emojiContainer.appendChild(emoji);
+    }
+}
+
+
+function insertAtCursor(input, textToInsert) {
+    // get current text of the input
+    const value = input.value;
+
+    // save selection start and end position
+    const start = input.selectionStart;
+    const end = input.selectionEnd;
+
+    // update the value with our text inserted
+    input.value = value.slice(0, start) + textToInsert + value.slice(end);
+
+    // update cursor to be at the end of insertion
+    input.selectionStart = input.selectionEnd = start + textToInsert.length;
+}
