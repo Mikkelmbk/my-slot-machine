@@ -26,7 +26,7 @@ let gameInfoBtnElement = document.querySelector('.game-info');
 let holdRulle1BtnElement = document.querySelector('.hold-rulle1');
 let holdRulle2BtnElement = document.querySelector('.hold-rulle2');
 let holdRulle3BtnElement = document.querySelector('.hold-rulle3');
-let scoreboardTableElement = document.querySelector('.scoreboard-container');
+let scoreboardTableElement = document.querySelector('.scoreboard-container tbody');
 let scoreboardWinRateToggleElement = document.querySelector('.table-winrate');
 // Reference Section Ends.
 
@@ -41,6 +41,7 @@ let currentlySpinning = true;
 let autoSpinActive = false;
 let allowSpin = 10;
 let freeSpinCount = 0;
+let autoPlayWhileOverlayActivated = false; // If auto play is activated, and you click on Game info, and click away from it while the game is still finishing the last spin, this boolean will prevent currentlySpinning to be set to true before the final spin has ended.
 // Condition Section Ends.
 
 
@@ -60,6 +61,16 @@ holdRulle1BtnElement.disabled = true;
 updateCoinAndSpinCount();
 winRateDisplayElement.innerHTML = "Win-rate: 0%";
 gameCountDisplayElement.innerHTML = `T: 0 | L: 0 | W: 0`;
+
+// window.addEventListener('mousemove',(event)=>{
+//     console.log(event.clientY);
+//     if(event.clientY <= 8){
+//         clearingAutoInterval();     
+//     }
+// })
+
+// console.log(bodyElement.offsetHeight);
+// console.log()
 
 
 auth.onAuthStateChanged((user) => {
@@ -112,7 +123,6 @@ auth.onAuthStateChanged((user) => {
 
             auth.signInWithEmailAndPassword(email, password)
                 .then((cred) => {
-                    // console.log(cred);
                     loginFormElement.reset();
 
                     window.location.replace(window.location.href);
@@ -132,7 +142,6 @@ auth.onAuthStateChanged((user) => {
 
             auth.createUserWithEmailAndPassword(email, password)
                 .then((cred) => {
-                    // console.log(cred);
                     return db.collection('users').doc(cred.user.uid).set({
                         fullname: name,
                         coin: 200,
@@ -190,8 +199,6 @@ auth.onAuthStateChanged((user) => {
                 winCount = userData.data().sessionWins;
 
                 if (gameCount != 0 && winCount != 0) {
-                    console.log(gameCount);
-                    console.log(winCount);
                     winRateDisplayElement.innerHTML = `Win-rate: ${((winCount / gameCount) * 100).toFixed(1)}%`;
                 }
                 gameCountDisplayElement.innerHTML = `T: ${userData.data().sessionGames} | L: ${(userData.data().sessionGames - userData.data().sessionWins)} | W: ${userData.data().sessionWins}`;
@@ -208,10 +215,9 @@ auth.onAuthStateChanged((user) => {
 
 db.collection('users').orderBy("sessionWins", "desc").onSnapshot(snapshot => {
     let changes = snapshot.docChanges();
+    // console.log('changes: ', changes);
     changes.forEach((change) => {
-        // console.log("Der er sket en ændring")
         if (change.type == "added") {
-            // console.log(change.doc.data());
 
             let tr = document.createElement('tr');
             tr.setAttribute("data-tr-id", change.doc.id);
@@ -261,7 +267,43 @@ db.collection('users').orderBy("sessionWins", "desc").onSnapshot(snapshot => {
         }
     })
 
-})
+
+    let switching, i, x, y, shouldSwitch;
+    switching = true;
+    /* Make a loop that will continue until
+    no switching has been done: */
+    while (switching) {
+        // Start by saying: no switching is done:
+        switching = false;
+
+        /* Loop through all table rows (except the
+        first, which contains table headers): */
+        for (i = 0; i < (scoreboardTableElement.rows.length - 1); i++) {
+            // Start by saying there should be no switching:
+            shouldSwitch = false;
+            /* Get the two elements you want to compare,
+            one from current row and one from the next: */
+            x = parseInt(scoreboardTableElement.rows[i].children[3].textContent);
+            y = parseInt(scoreboardTableElement.rows[i + 1].children[3].textContent);
+            // Check if the two rows should switch place:
+            if (x < y) {
+                // If so, mark as a switch and break the loop:
+                shouldSwitch = true;
+                break;
+            }
+        }
+        if (shouldSwitch) {
+            /* If a switch has been marked, make the switch
+            and mark that a switch has been done: */
+            scoreboardTableElement.rows[i].parentNode.insertBefore(scoreboardTableElement.rows[i + 1], scoreboardTableElement.rows[i]);
+            switching = true;
+        }
+    }
+
+
+
+
+}) // snapshot Ends
 
 {
     // let Data = [
@@ -453,21 +495,23 @@ autoBtnElement.addEventListener('click', () => {
     }
     else if (autoSpinActive) {
         clearingAutoInterval();
-    }
-    ;
+    };
 });
 
 gameInfoBtnElement.addEventListener('click', () => {
     gameOverlayElement.style.display = "flex";
     currentlySpinning = true;
     contentWrapperElement.style.opacity = 0;
+    if (autoSpinInterval != null) {
+        autoPlayWhileOverlayActivated = true;
+    }
     clearingAutoInterval();
 });
 
 gameOverlayElement.addEventListener('click', () => {
     gameOverlayElement.style.display = "none";
     contentWrapperElement.style.opacity = 1;
-    if (autoSpinInterval == undefined) { // If the interval is undefined, then the machine is not running, and if the machine is not running, the winOrLose function wont set currentlySpinning to false, so then this click should do it.
+    if (autoSpinInterval == null && autoPlayWhileOverlayActivated == false) { // If the interval is null, then the machine is not running, and if the machine is not running, the winOrLose function wont set currentlySpinning to false, so then this click should do it.
         currentlySpinning = false;
     }
 });
@@ -496,16 +540,20 @@ rulle1OverflowingElement.addEventListener('transitionend', () => {
     rulle1VenstreCenter = rullerArray[0][rulle1Index + 1];
     rulle1VenstreBund = rullerArray[0][rulle1Index + 2];
     if (holdRulle2Boolean && holdRulle3Boolean) {
-        // console.log("Hvis Rulle 2 og Rulle 3 Bliver fastholdt");
         winOrLose();
+        audioElement.pause();
+        audioElement.currentTime = 0;
+        autoPlayWhileOverlayActivated = false;
     }
 });
 
 rulle2OverflowingElement.addEventListener('transitionend', () => {
     rulle2Center = rullerArray[1][rulle2Index + 1];
     if (holdRulle3Boolean) {
-        // console.log("Hvis rulle 3 bliver fastholdt");
         winOrLose();
+        audioElement.pause();
+        audioElement.currentTime = 0;
+        autoPlayWhileOverlayActivated = false;
     }
 });
 
@@ -513,10 +561,10 @@ rulle3OverflowingElement.addEventListener('transitionend', () => {
     rulle3HøjreTop = rullerArray[2][rulle3Index];
     rulle3HøjreCenter = rullerArray[2][rulle3Index + 1];
     rulle3HøjreBund = rullerArray[2][rulle3Index + 2];
-    // console.log("Hvis Rulle 1 og 2 bliver fastholdt");
     winOrLose();
     audioElement.pause();
     audioElement.currentTime = 0;
+    autoPlayWhileOverlayActivated = false;
 });
 // EventListeners Section Ends.
 
@@ -597,8 +645,7 @@ function depositCoins() {
 }
 
 function keyPress(e) {
-    // console.log(e);
-    if (e.keyCode == 32 && !currentlySpinning) {
+    if (e.keyCode == 32 && !currentlySpinning && !coinInputFieldHasFocus) {
         userInitiatedMachine();
     }
     if (e.keyCode == 13 && coinInputFieldHasFocus) {
@@ -724,7 +771,6 @@ function userInitiatedMachine() {
         }
         if (holdRulle1Boolean || holdRulle2Boolean || holdRulle3Boolean) {
             rulleWasHeldLastSpin = true;
-            console.log(rulleWasHeldLastSpin)
         }
 
         if (freeSpinCount == 0) {
@@ -746,7 +792,7 @@ function userInitiatedMachine() {
         startSpinning(rulle1Index, rulle2Index, rulle3Index);
     }
     else {
-        gameResultElement.innerHTML = "Indsæt flere penge for at spille videre";
+        gameResultElement.innerHTML = "Insert more money to continue playing!";
         setTimeout(() => {
             coinDepositElement.focus();
             clearingAutoInterval();
@@ -887,8 +933,8 @@ function clearingAutoInterval() {
     clearInterval(autoSpinInterval);
     autoSpinActive = false;
     autoBtnElement.innerHTML = "Auto Spil";
+    autoSpinInterval = null;
 }
-
 
 function closingCode() {
     db.collection('users').doc(auth.currentUser.uid).update({
