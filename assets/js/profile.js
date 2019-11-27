@@ -3,18 +3,16 @@ auth.onAuthStateChanged((user) => {
 
 	} else {
 		db.collection("users")
+			.doc(auth.currentUser.uid)
 			.get()
 			.then(function (snapshot) {
-				snapshot.docs.forEach(function (doc) {
-					let data = doc.data();
+				let data = snapshot.data();
 
-					let username = document.querySelector('.names__name');
-					username.textContent = data.fullname;
+				let username = document.querySelector('.names__name');
+				username.textContent = data.fullname;
 
-					let profileImage = document.querySelector('.profile-image__image');
-					profileImage.setAttribute('src', data.imagePath);
-
-				});
+				let profileImage = document.querySelector('.profile-image__image');
+				profileImage.setAttribute('src', data.imagePath);
 			});
 	}
 });
