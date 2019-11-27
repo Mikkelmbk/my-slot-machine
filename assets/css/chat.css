@@ -8,6 +8,7 @@
     background-size: cover;
     background-position-y: 50%;
     height: 100vh;
+    margin: 0;
 }
 
 .chat {

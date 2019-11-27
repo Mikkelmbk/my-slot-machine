@@ -3,6 +3,8 @@ let chatFormElem = document.querySelector('.chat-form');
 let chatMessageContainerElem = document.querySelector('.chat-messagecontainer');
 let chatMessageTemplateElem = document.querySelector('.html-templates .chat-message');
 
+
+
 auth.onAuthStateChanged((user) => {
     if (user == null) {
         chatFormElem.chatFormMessage.disabled = true
@@ -14,10 +16,17 @@ auth.onAuthStateChanged((user) => {
         chatFormElem.chatFormMessage.placeholder = "Message..."
 
         db.collection("chat").orderBy("postTime", "asc").onSnapshot(snapshot => {
+            let orderedDocs = []
             changes = snapshot.docChanges()
-            changes.forEach(change => {
+            changes.forEach((change) => {
                 if (change.type == "added") {
-                    renderChatMessage(change.doc)
+                    // renderChatMessage(change.doc)
+                    db.collection("users").doc(change.doc.data().author).get().then((userDoc) => {
+                        orderedDocs.push({doc: change.doc,userDoc: userDoc,})
+                        if(orderedDocs.length == changes.length){
+                            dostuff(orderedDocs)
+                        }
+                    })
                 } else if (change.type == "removed") {
                     chatElem.querySelector(`[data-id='${change.doc.id}']`).remove()
                 }
@@ -26,14 +35,20 @@ auth.onAuthStateChanged((user) => {
     }
 })
 
-function renderChatMessage(doc) {
+function dostuff(dataArray){
+    dataArray.sort((a, b) => (a.doc.data().postTime > b.doc.data().postTime) ? 1 : -1)
+    dataArray.forEach(data => {
+        renderChatMessage(data)
+    });
+}
 
+function renderChatMessage(data) {
     let clone = chatMessageTemplateElem.cloneNode(true)
 
-    clone.setAttribute("data-id", doc.id)
-    clone.querySelector(".chat-message__message").textContent = doc.data().message;
+    clone.setAttribute("data-id", data.doc.id)
+    clone.querySelector(".chat-message__message").textContent = data.doc.data().message;
 
-    let postDate = new Date(doc.data().postTime) ;
+    let postDate = new Date(data.doc.data().postTime);
     let postHour = postDate.getHours()
     if (postHour < 10) {
         postHour = `0${postHour}`
@@ -44,19 +59,17 @@ function renderChatMessage(doc) {
     }
     clone.querySelector(".chat-message__timesent").textContent = `(${postHour}:${postMinute})`;
 
-    db.collection("users").doc(doc.data().author).get().then((userDoc) => {
-        if (userDoc.data() != undefined) {
-            if (userDoc.data().picture != null) {
-                clone.querySelector(".chat-message__userimg").src = userDoc.data().picture;
-            }
-            clone.querySelector(".chat-message__author").textContent = userDoc.data().fullname;
-            chatMessageContainerElem.appendChild(clone);
-            let messages = chatMessageContainerElem.querySelectorAll(".chat-message")
-            chatMessageContainerElem.scrollTop = messages[messages.length - 1].offsetTop
-        } else {
-            db.collection("chat").doc(doc.id).delete()
+    if (data.userDoc.data() != undefined) {
+        if (data.userDoc.data().imagePath != null) {
+            clone.querySelector(".chat-message__userimg").src = data.userDoc.data().imagePath;
         }
-    })
+        clone.querySelector(".chat-message__author").textContent = data.userDoc.data().fullname;
+        chatMessageContainerElem.appendChild(clone);
+        let messages = chatMessageContainerElem.querySelectorAll(".chat-message")
+        chatMessageContainerElem.scrollTop = messages[messages.length - 1].offsetTop
+    } else {
+        db.collection("chat").doc(data.doc.id).delete()
+    }
 }
 
 chatFormElem.addEventListener("submit", (event) => {
@@ -91,20 +104,21 @@ function updateInputSelection() {
     inputEnd = chatFormElem.chatFormMessage.selectionEnd;
 }
 
+
 emojiContainer.addEventListener("click", (event) => {
     if (event.target.classList.contains("emojipopup-emoji")) {
         const value = chatFormElem.chatFormMessage.value;
-        
-        if(inputStart == undefined || inputStart == 0 && inputEnd == 0 || inputEnd == undefined){
+
+        if (inputStart == undefined || inputStart == 0 && inputEnd == 0 || inputEnd == undefined) {
             chatFormElem.chatFormMessage.value += event.target.textContent;
             inputStart = inputEnd = 2
-        }else{
+        } else {
             chatFormElem.chatFormMessage.value = value.slice(0, inputStart) + event.target.textContent + value.slice(inputEnd);
         }
-        
+
         // update cursor to be at the end of insertion
         chatFormElem.chatFormMessage.selectionStart = chatFormElem.chatFormMessage.selectionEnd = inputStart = inputEnd = inputStart + event.target.textContent.length
-        ;
+            ;
     }
 })
 
