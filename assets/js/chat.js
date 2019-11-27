@@ -104,6 +104,9 @@ function updateInputSelection() {
     inputEnd = chatFormElem.chatFormMessage.selectionEnd;
 }
 
+emojiContainer.addEventListener("mouseleave",()=>{
+    chatFormElem.emojispopupcheckbox.checked = false;
+})
 
 emojiContainer.addEventListener("click", (event) => {
     if (event.target.classList.contains("emojipopup-emoji")) {
@@ -117,8 +120,8 @@ emojiContainer.addEventListener("click", (event) => {
         }
 
         // update cursor to be at the end of insertion
-        chatFormElem.chatFormMessage.selectionStart = chatFormElem.chatFormMessage.selectionEnd = inputStart = inputEnd = inputStart + event.target.textContent.length
-            ;
+        chatFormElem.chatFormMessage.selectionStart = chatFormElem.chatFormMessage.selectionEnd = inputStart = inputEnd = inputStart + event.target.textContent.length;
+        chatFormInputElem.focus()
     }
 })
 
