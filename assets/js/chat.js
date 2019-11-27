@@ -18,7 +18,6 @@ auth.onAuthStateChanged((user) => {
         db.collection("chat").orderBy("postTime", "asc").onSnapshot(snapshot => {
             let orderedDocs = []
             changes = snapshot.docChanges()
-            console.log(changes.length)
             changes.forEach((change) => {
                 if (change.type == "added") {
                     // renderChatMessage(change.doc)
@@ -72,43 +71,6 @@ function renderChatMessage(data) {
         db.collection("chat").doc(data.doc.id).delete()
     }
 }
-// async function renderChatMessage(doc) {
-//     // console.log(doc.data())
-//     let clone = chatMessageTemplateElem.cloneNode(true)
-
-//     clone.setAttribute("data-id", doc.id)
-//     clone.querySelector(".chat-message__message").textContent = doc.data().message;
-
-//     let postDate = new Date(doc.data().postTime) ;
-//     let postHour = postDate.getHours()
-//     if (postHour < 10) {
-//         postHour = `0${postHour}`
-//     }
-//     let postMinute = postDate.getMinutes()
-//     if (postMinute < 10) {
-//         postMinute = `0${postMinute}`
-//     }
-//     clone.querySelector(".chat-message__timesent").textContent = `(${postHour}:${postMinute})`;
-
-//     // console.log("Done",doc.data())
-
-//     let userDoc = await db.collection("users").doc(doc.data().author).get()
-
-//     // db.collection("users").doc(doc.data().author).get().then((userDoc) => {
-//         console.log(userDoc.data())
-//         if (userDoc.data() != undefined) {
-//             if (userDoc.data().imagePath != null) {
-//                 clone.querySelector(".chat-message__userimg").src = userDoc.data().imagePath;
-//             }
-//             clone.querySelector(".chat-message__author").textContent = userDoc.data().fullname;
-//             chatMessageContainerElem.appendChild(clone);
-//             let messages = chatMessageContainerElem.querySelectorAll(".chat-message")
-//             chatMessageContainerElem.scrollTop = messages[messages.length - 1].offsetTop
-//         } else {
-//             db.collection("chat").doc(doc.id).delete()
-//         }
-//     // })
-// }
 
 chatFormElem.addEventListener("submit", (event) => {
     event.preventDefault()
