@@ -15,11 +15,11 @@ let depositCoinBtnElement = document.querySelector('.betal-mønter');
 let coinDepositElement = document.querySelector('.mønt-indkast');
 let rulle1Element = document.querySelector('.rulle1');
 let coinsElement = document.querySelector('.mønter');
-let winRateDisplayElement = document.querySelector('.win-rate');
+// let winRateDisplayElement = document.querySelector('.win-rate');
 let gameResultElement = document.querySelector('.spil-resultat');
 let gameResultContainerElement = document.querySelector('.spil-resultat-container');
 let freeSpinsDisplayElement = document.querySelector('.free-spins');
-let gameCountDisplayElement = document.querySelector('.game-count');
+// let gameCountDisplayElement = document.querySelector('.game-count');
 let audioElement = document.querySelector('audio');
 let gameOverlayElement = document.querySelector('.overlay');
 let gameInfoBtnElement = document.querySelector('.game-info');
@@ -59,20 +59,12 @@ holdRulle2BtnElement.disabled = true;
 holdRulle3BtnElement.disabled = true;
 holdRulle1BtnElement.disabled = true;
 updateCoinAndSpinCount();
-winRateDisplayElement.innerHTML = "Win-rate: 0%";
-gameCountDisplayElement.innerHTML = `T: 0 | L: 0 | W: 0`;
-
-// window.addEventListener('mousemove',(event)=>{
-//     console.log(event.clientY);
-//     if(event.clientY <= 8){
-//         clearingAutoInterval();     
-//     }
-// })
-
-// console.log(bodyElement.offsetHeight);
-// console.log()
+// winRateDisplayElement.innerHTML = "Win-rate: 0%";
+// gameCountDisplayElement.innerHTML = `T: 0 | L: 0 | W: 0`;
 
 
+
+// auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
 auth.onAuthStateChanged((user) => {
     if (user == null) {
         bodyElement.classList.remove('body-display');
@@ -190,6 +182,7 @@ auth.onAuthStateChanged((user) => {
         bodyElement.classList.add('body-display');
         contentWrapperElement.classList.remove('content-wrapper-logged-out');
         contentWrapperElement.classList.add('content-wrapper-logged-in');
+        
 
         db.collection('users').doc(user.uid).get()
             .then((userData) => {
@@ -198,10 +191,10 @@ auth.onAuthStateChanged((user) => {
                 gameCount = userData.data().sessionGames;
                 winCount = userData.data().sessionWins;
 
-                if (gameCount != 0 && winCount != 0) {
-                    winRateDisplayElement.innerHTML = `Win-rate: ${((winCount / gameCount) * 100).toFixed(1)}%`;
-                }
-                gameCountDisplayElement.innerHTML = `T: ${userData.data().sessionGames} | L: ${(userData.data().sessionGames - userData.data().sessionWins)} | W: ${userData.data().sessionWins}`;
+                // if (gameCount != 0 && winCount != 0) {
+                //     // winRateDisplayElement.innerHTML = `Win-rate: ${((winCount / gameCount) * 100).toFixed(1)}%`;
+                // }
+                // gameCountDisplayElement.innerHTML = `T: ${userData.data().sessionGames} | L: ${(userData.data().sessionGames - userData.data().sessionWins)} | W: ${userData.data().sessionWins}`;
                 updateCoinAndSpinCount();
                 currentlySpinning = false;
             })
@@ -213,9 +206,9 @@ auth.onAuthStateChanged((user) => {
 });
 
 
+
 db.collection('users').orderBy("sessionWins", "desc").onSnapshot(snapshot => {
     let changes = snapshot.docChanges();
-    // console.log('changes: ', changes);
     changes.forEach((change) => {
         if (change.type == "added") {
 
@@ -266,42 +259,8 @@ db.collection('users').orderBy("sessionWins", "desc").onSnapshot(snapshot => {
 
         }
     })
-
-
-    let switching, i, x, y, shouldSwitch;
-    switching = true;
-    /* Make a loop that will continue until
-    no switching has been done: */
-    while (switching) {
-        // Start by saying: no switching is done:
-        switching = false;
-
-        /* Loop through all table rows (except the
-        first, which contains table headers): */
-        for (i = 0; i < (scoreboardTableElement.rows.length - 1); i++) {
-            // Start by saying there should be no switching:
-            shouldSwitch = false;
-            /* Get the two elements you want to compare,
-            one from current row and one from the next: */
-            x = parseInt(scoreboardTableElement.rows[i].children[3].textContent);
-            y = parseInt(scoreboardTableElement.rows[i + 1].children[3].textContent);
-            // Check if the two rows should switch place:
-            if (x < y) {
-                // If so, mark as a switch and break the loop:
-                shouldSwitch = true;
-                break;
-            }
-        }
-        if (shouldSwitch) {
-            /* If a switch has been marked, make the switch
-            and mark that a switch has been done: */
-            scoreboardTableElement.rows[i].parentNode.insertBefore(scoreboardTableElement.rows[i + 1], scoreboardTableElement.rows[i]);
-            switching = true;
-        }
-    }
-
-
-
+    
+    sortScoreboard();
 
 }) // snapshot Ends
 
@@ -454,7 +413,13 @@ makeRulle1();
 makeRulle2();
 makeRulle3();
 
+
+
 // EventListeners Section Start.
+
+bodyElement.addEventListener('mouseleave',()=>{
+    clearingAutoInterval();     
+});
 
 coinDepositElement.addEventListener('focusin', () => {
     coinInputFieldHasFocus = true;
@@ -466,6 +431,7 @@ coinDepositElement.addEventListener('focusout', () => {
 logoutBtnElement.addEventListener('click', () => {
 
     closingCode();
+    auth.signOut();
 });
 
 window.onbeforeunload = closingCode;
@@ -887,13 +853,12 @@ function winOrLose() {
         gameResultElement.innerHTML = "You lost, try again!";
         updateLifeTimeGameDb(auth.currentUser.uid);
     }
-    if (gameCount / winCount != Infinity) {
-        winRateDisplayElement.innerHTML = `Win-rate: ${((winCount / gameCount) * 100).toFixed(1)}%`;
-    }
-    gameCountDisplayElement.innerHTML = `T: ${gameCount} | L: ${(gameCount - winCount)} | W: ${winCount}`;
+    // if (gameCount / winCount != Infinity) {
+    //     // winRateDisplayElement.innerHTML = `Win-rate: ${((winCount / gameCount) * 100).toFixed(1)}%`;
+    // }
+    // // gameCountDisplayElement.innerHTML = `T: ${gameCount} | L: ${(gameCount - winCount)} | W: ${winCount}`;
 
     currentlySpinning = false;
-
     updateSessionDb(auth.currentUser.uid);
 }
 
@@ -932,7 +897,7 @@ function freeSpinTracker() {
 function clearingAutoInterval() {
     clearInterval(autoSpinInterval);
     autoSpinActive = false;
-    autoBtnElement.innerHTML = "Auto Spil";
+    autoBtnElement.innerHTML = "Auto Play";
     autoSpinInterval = null;
 }
 
@@ -941,9 +906,44 @@ function closingCode() {
         sessionGames: 0,
         sessionWins: 0,
     })
-        .then(() => {
-            auth.signOut();
-        })
+}
+
+
+function sortScoreboard(){
+    let switching, i, x, y, shouldSwitch;
+    switching = true;
+    /* Make a loop that will continue until
+    no switching has been done: */
+    while (switching) {
+        // Start by saying: no switching is done:
+        switching = false;
+
+        /* Loop through all table rows (except the
+        first, which contains table headers): */
+        for (i = 0; i < (scoreboardTableElement.rows.length - 1); i++) {
+            // Start by saying there should be no switching:
+            shouldSwitch = false;
+            /* Get the two elements you want to compare,
+            one from current row and one from the next: */
+            x = parseInt(scoreboardTableElement.rows[i].children[3].textContent);
+            y = parseInt(scoreboardTableElement.rows[i + 1].children[3].textContent);
+            // Check if the two rows should switch place:
+            if (x < y) {
+                // If so, mark as a switch and break the loop:
+                shouldSwitch = true;
+                break;
+            }
+        }
+        if (shouldSwitch) {
+            /* If a switch has been marked, make the switch
+            and mark that a switch has been done: */
+            scoreboardTableElement.rows[i].parentNode.insertBefore(scoreboardTableElement.rows[i + 1], scoreboardTableElement.rows[i]);
+            switching = true;
+        }
+    }
+
+    let colorCurrentUserOnScoreboard = scoreboardTableElement.querySelector(`[data-tr-id=${auth.currentUser.uid}]`);
+    colorCurrentUserOnScoreboard.classList.add('color-user-on-scoreboard');
 }
     // Function Definition Section Ends.
 
