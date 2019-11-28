@@ -3,7 +3,8 @@ let chatFormElem = document.querySelector('.chat-form');
 let chatMessageContainerElem = document.querySelector('.chat-messagecontainer');
 let chatMessageTemplateElem = document.querySelector('.html-templates .chat-message');
 
-
+let newMessage = false
+let userinfo
 
 auth.onAuthStateChanged((user) => {
     if (user == null) {
@@ -14,23 +15,25 @@ auth.onAuthStateChanged((user) => {
         chatFormElem.chatFormMessage.disabled = false
         chatFormElem.chatFormButton.disabled = false
         chatFormElem.chatFormMessage.placeholder = "Message..."
+        db.collection("users").doc(user.uid).get().then((currentUserDoc) => {
+            userinfo = currentUserDoc.data();
+            db.collection("chat").orderBy("postTime", "desc").onSnapshot(snapshot => {
+                let messagedocs = []
+                changes = snapshot.docChanges()
+                changes.forEach((change) => {
+                    if (change.type == "added") {
 
-        db.collection("chat").orderBy("postTime", "desc").onSnapshot(snapshot => {
-            let messagedocs = []
-            changes = snapshot.docChanges()
-            changes.forEach((change) => {
-                if (change.type == "added") {
-                    // renderChatMessage(change.doc)
-                    db.collection("users").doc(change.doc.data().author).get().then((userDoc) => {
-                        messagedocs.push({ doc: change.doc, userDoc: userDoc, })
-                        if (messagedocs.length == changes.length) {
-                            sortMessageArray(messagedocs)
-                        }
-                    })
-                } else if (change.type == "removed") {
-                    chatElem.querySelector(`[data-id='${change.doc.id}']`).remove()
-                }
-            });
+                        db.collection("users").doc(change.doc.data().author).get().then((userDoc) => {
+                            messagedocs.push({ doc: change.doc, userDoc: userDoc, })
+                            if (messagedocs.length == changes.length) {
+                                sortMessageArray(messagedocs)
+                            }
+                        })
+                    } else if (change.type == "removed") {
+                        chatElem.querySelector(`[data-id='${change.doc.id}']`).remove()
+                    }
+                });
+            })
         })
     }
 })
@@ -40,6 +43,7 @@ function sortMessageArray(messagedocs) {
     messagedocs.forEach(data => {
         renderChatMessage(data)
     });
+    newMessage = true
 }
 
 function renderChatMessage(data) {
@@ -94,17 +98,36 @@ function renderChatMessage(data) {
         clone.querySelector(".chat-message__author").textContent = data.userDoc.data().fullname;
         chatMessageContainerElem.appendChild(clone);
         let messages = chatMessageContainerElem.querySelectorAll(".chat-message")
-        console.log("Container", chatMessageContainerElem.scrollTop)
-        console.log("Message", messages[messages.length - 1].offsetTop)
-        console.log("Scroll difference",messages[messages.length - 1].offsetTop - chatMessageContainerElem.scrollTop)
 
-        console.log(messages[messages.length - 1].offsetTop - chatMessageContainerElem.scrollTop < 800)
         if (messages[messages.length - 1].offsetTop - chatMessageContainerElem.scrollTop < 800) {
             chatMessageContainerElem.scrollTop = messages[messages.length - 1].offsetTop
         }
     } else {
         db.collection("chat").doc(data.doc.id).delete()
     }
+    if (newMessage == true) {
+        let message = data.doc.data().message.toLowerCase()
+        if(data.doc.data().message.includes(`@${userinfo.fullname.toLowerCase()}`)){   
+            sendNotification(data.userDoc.data().imagePath, data.doc.data().message, data.userDoc.data().fullname)
+        }
+    }
+}
+
+function sendNotification(userImg, msg, name) {
+    Notification.requestPermission().then(function (permission) {
+        // If the user accepts, let's create a notification
+        if (permission === "granted") {
+            var notification = new Notification(
+                "New Message!",
+                {
+                    "body": `${name}: ${msg}`,
+                    "icon": userImg,
+                    "vibrate": [200, 100, 200, 100, 200, 100, 400],
+                    "tag": "request",
+                }
+            );
+        }
+    })
 }
 
 chatFormElem.addEventListener("submit", (event) => {
@@ -124,7 +147,9 @@ chatFormElem.addEventListener("submit", (event) => {
 
 
 //Emoji's :D
-let emojiContainer = document.querySelector(".emojipopup-emojicontainer")
+let emojiContainer = document.querySelector(".emojipopup-emojicontainer");
+let emojiPopUpElem = document.querySelector(".emojipopup");
+
 let chatFormEmojiBtnElem = chatFormElem.querySelector(".chat-form__emoji-button")
 let chatFormInputElem = chatFormElem.querySelector(".chatFormMessage")
 let inputStart, inputEnd
@@ -142,7 +167,9 @@ function updateInputSelection() {
     inputEnd = chatFormElem.chatFormMessage.selectionEnd;
 }
 
-emojiContainer.addEventListener("mouseleave", () => {
+
+
+emojiPopUpElem.addEventListener("mouseleave", (event) => {
     chatFormElem.emojispopupcheckbox.checked = false;
 })
 
