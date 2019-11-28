@@ -6,6 +6,8 @@ let chatMessageTemplateElem = document.querySelector('.html-templates .chat-mess
 let newMessage = false
 let userinfo
 
+Notification.requestPermission()
+
 auth.onAuthStateChanged((user) => {
     if (user == null) {
         chatFormElem.chatFormMessage.disabled = true
