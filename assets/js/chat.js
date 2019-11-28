@@ -15,16 +15,16 @@ auth.onAuthStateChanged((user) => {
         chatFormElem.chatFormButton.disabled = false
         chatFormElem.chatFormMessage.placeholder = "Message..."
 
-        db.collection("chat").orderBy("postTime", "asc").onSnapshot(snapshot => {
-            let orderedDocs = []
+        db.collection("chat").orderBy("postTime", "desc").onSnapshot(snapshot => {
+            let messagedocs = []
             changes = snapshot.docChanges()
             changes.forEach((change) => {
                 if (change.type == "added") {
                     // renderChatMessage(change.doc)
                     db.collection("users").doc(change.doc.data().author).get().then((userDoc) => {
-                        orderedDocs.push({doc: change.doc,userDoc: userDoc,})
-                        if(orderedDocs.length == changes.length){
-                            dostuff(orderedDocs)
+                        messagedocs.push({ doc: change.doc, userDoc: userDoc, })
+                        if (messagedocs.length == changes.length) {
+                            sortMessageArray(messagedocs)
                         }
                     })
                 } else if (change.type == "removed") {
@@ -35,9 +35,9 @@ auth.onAuthStateChanged((user) => {
     }
 })
 
-function dostuff(dataArray){
-    dataArray.sort((a, b) => (a.doc.data().postTime > b.doc.data().postTime) ? 1 : -1)
-    dataArray.forEach(data => {
+function sortMessageArray(messagedocs) {
+    messagedocs.sort((a, b) => (a.doc.data().postTime > b.doc.data().postTime) ? 1 : -1)
+    messagedocs.forEach(data => {
         renderChatMessage(data)
     });
 }
@@ -57,7 +57,35 @@ function renderChatMessage(data) {
     if (postMinute < 10) {
         postMinute = `0${postMinute}`
     }
-    clone.querySelector(".chat-message__timesent").textContent = `(${postHour}:${postMinute})`;
+
+    let removeBtn = clone.querySelector(".chat-message__removebtn");
+    if (data.userDoc.id == auth.currentUser.uid) {
+        removeBtn.addEventListener("click", () => {
+            db.collection("chat").doc(data.doc.id).delete()
+        })
+    } else {
+        removeBtn.remove()
+    }
+    let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    let currentDate = new Date()
+    let messageTime = "";
+
+    if (postDate.getDate() == currentDate.getDate()) {
+        if (postDate.getMonth() == currentDate.getMonth()) {
+            if (postDate.getFullYear() == currentDate.getFullYear()) {
+                messageTime = `(${postHour}:${postMinute})`
+            } else {
+                messageTime = `(${months[postDate.getMonth()]} ${postDate.getDate()} ${postDate.getFullYear()}.  ${postHour}:${postMinute})`
+            }
+        } else {
+            messageTime = `(${months[postDate.getMonth()]} ${postDate.getDate()}.  ${postHour}:${postMinute})`
+        }
+    } else {
+        messageTime = `(${days[postDate.getDay()]}, ${postHour}:${postMinute})`
+    }
+
+    clone.querySelector(".chat-message__timesent").textContent = messageTime;
 
     if (data.userDoc.data() != undefined) {
         if (data.userDoc.data().imagePath != null) {
@@ -66,7 +94,14 @@ function renderChatMessage(data) {
         clone.querySelector(".chat-message__author").textContent = data.userDoc.data().fullname;
         chatMessageContainerElem.appendChild(clone);
         let messages = chatMessageContainerElem.querySelectorAll(".chat-message")
-        chatMessageContainerElem.scrollTop = messages[messages.length - 1].offsetTop
+        console.log("Container", chatMessageContainerElem.scrollTop)
+        console.log("Message", messages[messages.length - 1].offsetTop)
+        console.log("Scroll difference",messages[messages.length - 1].offsetTop - chatMessageContainerElem.scrollTop)
+
+        console.log(messages[messages.length - 1].offsetTop - chatMessageContainerElem.scrollTop < 800)
+        if (messages[messages.length - 1].offsetTop - chatMessageContainerElem.scrollTop < 800) {
+            chatMessageContainerElem.scrollTop = messages[messages.length - 1].offsetTop
+        }
     } else {
         db.collection("chat").doc(data.doc.id).delete()
     }
@@ -86,6 +121,9 @@ chatFormElem.addEventListener("submit", (event) => {
     }
     chatFormElem.reset()
 })
+
+
+//Emoji's :D
 let emojiContainer = document.querySelector(".emojipopup-emojicontainer")
 let chatFormEmojiBtnElem = chatFormElem.querySelector(".chat-form__emoji-button")
 let chatFormInputElem = chatFormElem.querySelector(".chatFormMessage")
@@ -104,7 +142,7 @@ function updateInputSelection() {
     inputEnd = chatFormElem.chatFormMessage.selectionEnd;
 }
 
-emojiContainer.addEventListener("mouseleave",()=>{
+emojiContainer.addEventListener("mouseleave", () => {
     chatFormElem.emojispopupcheckbox.checked = false;
 })
 
@@ -126,6 +164,8 @@ emojiContainer.addEventListener("click", (event) => {
 })
 
 
+
+
 let emojiRange = [
     [128512, 128591], [9986, 10160], [128640, 128704]
 ];
@@ -139,19 +179,4 @@ for (var i = 0; i < emojiRange.length; i++) {
         emojiContainer.appendChild(emoji);
     }
 }
-
-
-function insertAtCursor(input, textToInsert) {
-    // get current text of the input
-    const value = input.value;
-
-    // save selection start and end position
-    const start = input.selectionStart;
-    const end = input.selectionEnd;
-
-    // update the value with our text inserted
-    input.value = value.slice(0, start) + textToInsert + value.slice(end);
-
-    // update cursor to be at the end of insertion
-    input.selectionStart = input.selectionEnd = start + textToInsert.length;
-}
+// Emoji end
