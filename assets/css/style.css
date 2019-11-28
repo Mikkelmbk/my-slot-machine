@@ -239,7 +239,7 @@
 		border: none;
 		color: black;
 	}
-	.betal-mønter, .start-btn, .auto-btn, .logout-btn, .toggle-forms-btn, .login-btn, .opret-btn, .game-info {
+	.betal-mønter, .start-btn, .auto-btn, .logout-btn, .toggle-forms-btn, .login-btn, .opret-btn, .game-info,.profile-page{
 		border: none;
 		border-radius: 4px;
 		color: white;
@@ -257,6 +257,14 @@
 	}
 	.toggle-forms-btn {
 		margin: 10px 0;
+	}
+
+	.profile-page{
+		display:block;
+		font-size:13.3px;
+		text-decoration:none;
+		font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+
 	}
 	.formStyling {
 		display: flex;
@@ -389,5 +397,9 @@
 	}
 	th {
 		color: white;
+	}
+
+	.color-user-on-scoreboard{
+		background-color:green;
 	}
 }
