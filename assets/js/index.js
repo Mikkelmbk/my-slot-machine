@@ -206,53 +206,20 @@ auth.onAuthStateChanged((user) => {
             .catch((err) => {
                 console.log(err);
             })
+
     }
 
 });
 
 
 
-db.collection('users').orderBy("sessionWins", "desc").onSnapshot(snapshot => {
-    let changes = snapshot.docChanges();
-    changes.forEach((change) => {
+    db.collection('users').orderBy("sessionWins", "desc").onSnapshot(snapshot => {
+        let changes = snapshot.docChanges();
+        changes.forEach((change) => {
 
-        if (change.doc.data().isOnline) {
+            if (change.doc.data().isOnline) {
 
-            if (change.type == "added") {
-
-                let tr = document.createElement('tr');
-                tr.setAttribute("data-tr-id", change.doc.id);
-                let tdName = document.createElement('td');
-                let tdwinRate = document.createElement('td');
-                let tdGames = document.createElement('td');
-                let tdWins = document.createElement('td');
-
-                tdName.innerHTML = change.doc.data().fullname;
-                if (change.doc.data().sessionGames != 0 && change.doc.data().sessionWins != 0) {
-                    tdwinRate.innerHTML = `${((change.doc.data().sessionWins / change.doc.data().sessionGames) * 100).toFixed(1)}%`
-                }
-                else {
-                    tdwinRate.innerHTML = `0%`;
-                }
-
-                tdGames.innerHTML = change.doc.data().sessionGames;
-                tdWins.innerHTML = change.doc.data().sessionWins;
-
-
-                scoreboardTableElement.appendChild(tr);
-                tr.appendChild(tdName);
-                tr.appendChild(tdwinRate);
-                tr.appendChild(tdGames);
-                tr.appendChild(tdWins);
-
-            }
-
-            if (change.type == "modified") {
-
-                let trToChange = scoreboardTableElement.querySelector(`[data-tr-id=${change.doc.id}]`);
-                console.log(trToChange);
-
-                if (trToChange == undefined) { // If there are no trToChange with the querySelected doc.id, then the tr element hasn't been created, so then we create it.
+                if (change.type == "added") {
 
                     let tr = document.createElement('tr');
                     tr.setAttribute("data-tr-id", change.doc.id);
@@ -279,46 +246,79 @@ db.collection('users').orderBy("sessionWins", "desc").onSnapshot(snapshot => {
                     tr.appendChild(tdGames);
                     tr.appendChild(tdWins);
 
-                    trToChange = tr; // put tr into trToChange so that the if and else statements below has the right element.
                 }
 
-                if (change.doc.data().sessionGames != 0 && change.doc.data().sessionWins != 0) {
-                    trToChange.children[1].innerHTML = `${((change.doc.data().sessionWins / change.doc.data().sessionGames) * 100).toFixed(1)}%`
+                if (change.type == "modified") {
+
+                    let trToChange = scoreboardTableElement.querySelector(`[data-tr-id=${change.doc.id}]`);
+                    console.log(trToChange);
+
+                    if (trToChange == undefined) { // If there are no trToChange with the querySelected doc.id, then the tr element hasn't been created, so then we create it.
+
+                        let tr = document.createElement('tr');
+                        tr.setAttribute("data-tr-id", change.doc.id);
+                        let tdName = document.createElement('td');
+                        let tdwinRate = document.createElement('td');
+                        let tdGames = document.createElement('td');
+                        let tdWins = document.createElement('td');
+
+                        tdName.innerHTML = change.doc.data().fullname;
+                        if (change.doc.data().sessionGames != 0 && change.doc.data().sessionWins != 0) {
+                            tdwinRate.innerHTML = `${((change.doc.data().sessionWins / change.doc.data().sessionGames) * 100).toFixed(1)}%`
+                        }
+                        else {
+                            tdwinRate.innerHTML = `0%`;
+                        }
+
+                        tdGames.innerHTML = change.doc.data().sessionGames;
+                        tdWins.innerHTML = change.doc.data().sessionWins;
+
+
+                        scoreboardTableElement.appendChild(tr);
+                        tr.appendChild(tdName);
+                        tr.appendChild(tdwinRate);
+                        tr.appendChild(tdGames);
+                        tr.appendChild(tdWins);
+
+                        trToChange = tr; // put tr into trToChange so that the if and else statements below has the right element.
+                    }
+
+                    if (change.doc.data().sessionGames != 0 && change.doc.data().sessionWins != 0) {
+                        trToChange.children[1].innerHTML = `${((change.doc.data().sessionWins / change.doc.data().sessionGames) * 100).toFixed(1)}%`
+                    }
+                    else {
+                        trToChange.children[1].innerHTML = `0%`;
+                    }
+
+                    trToChange.children[2].innerHTML = change.doc.data().sessionGames;
+                    trToChange.children[3].innerHTML = change.doc.data().sessionWins;
+
+
+
                 }
-                else {
-                    trToChange.children[1].innerHTML = `0%`;
+
+                if (change.type == "removed") {
+                    scoreboardTableElement.querySelector(`[data-tr-id=${change.doc.id}]`).remove();
+
                 }
-
-                trToChange.children[2].innerHTML = change.doc.data().sessionGames;
-                trToChange.children[3].innerHTML = change.doc.data().sessionWins;
-
-
 
             }
 
-            if (change.type == "removed") {
-                scoreboardTableElement.querySelector(`[data-tr-id=${change.doc.id}]`).remove();
+            else {
+
+                let trToChange = scoreboardTableElement.querySelector(`[data-tr-id=${change.doc.id}]`);
+                if (trToChange != undefined) {
+
+                    trToChange.remove();
+                }
+
 
             }
+        })
 
-        }
+        sortScoreboard();
 
-        else {
-
-            let trToChange = scoreboardTableElement.querySelector(`[data-tr-id=${change.doc.id}]`);
-            if (trToChange != undefined) {
-
-                trToChange.remove();
-            }
-
-
-        }
-    })
-
-    sortScoreboard();
-
-}) // snapshot Ends
-
+    }) // snapshot Ends
 {
     // let Data = [
     // 	{
@@ -1003,9 +1003,12 @@ function sortScoreboard() {
             switching = true;
         }
     }
-
+    if(auth.currentUser != null){
+        console.log("THis is user",auth.currentUser)
     let colorCurrentUserOnScoreboard = scoreboardTableElement.querySelector(`[data-tr-id=${auth.currentUser.uid}]`);
+
     colorCurrentUserOnScoreboard.classList.add('color-user-on-scoreboard');
+    }
 }
     // Function Definition Section Ends.
 
