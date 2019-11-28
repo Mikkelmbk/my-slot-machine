@@ -107,9 +107,19 @@
     padding: .7em 1em;
     border-bottom: 1px solid #9f9f9f;
     display: flex;
+    justify-content: space-between;
     color: white;
 }
-
+.chat-message__left{
+    display: flex;
+}
+.chat-message__removebtn{
+    border: none;
+    background-color: transparent;
+    color: red;
+    font-weight: bold;
+    font-size: 1.1em;
+}
 .chat-message__info {
     display: flex;
     margin: 0 0 .4em 0;
