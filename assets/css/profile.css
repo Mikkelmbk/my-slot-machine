@@ -20,6 +20,27 @@ body {
 	width: 100%;
 }
 
+.banner__form {
+	position: absolute;
+	top: 1em;
+	left: 1em;
+}
+
+.banner__label {
+	font-size: 1.5em;
+	cursor: pointer;
+	display: none;
+}
+
+
+.banner:hover > .banner__form > .banner__label {
+	display: inline;
+}
+
+#banner__file-input {
+	display: none;
+}
+
 .right-container {
 	padding: 2em;
 	background-color: #483D8B;
