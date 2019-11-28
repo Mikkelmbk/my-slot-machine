@@ -9,6 +9,7 @@ let rulle1OverflowingElement = document.querySelector('.rulle1-overflowing');
 let rulle2OverflowingElement = document.querySelector('.rulle2-overflowing');
 let rulle3OverflowingElement = document.querySelector('.rulle3-overflowing');
 let prizeDisplayElement = document.querySelector('.gevinst-ul');
+let gameGuideDisplayElement = document.querySelector('.game-guide');
 let startBtnElement = document.querySelector('.start-btn');
 let autoBtnElement = document.querySelector('.auto-btn');
 let depositCoinBtnElement = document.querySelector('.betal-mønter');
@@ -142,6 +143,7 @@ auth.onAuthStateChanged((user) => {
                         lifeTimeWins: 0,
                         sessionGames: 0,
                         sessionWins: 0,
+                        isOnline: true,
 
 
                     })
@@ -182,7 +184,10 @@ auth.onAuthStateChanged((user) => {
         bodyElement.classList.add('body-display');
         contentWrapperElement.classList.remove('content-wrapper-logged-out');
         contentWrapperElement.classList.add('content-wrapper-logged-in');
-        
+
+        db.collection('users').doc(user.uid).update({
+            isOnline: true
+        });
 
         db.collection('users').doc(user.uid).get()
             .then((userData) => {
@@ -210,56 +215,106 @@ auth.onAuthStateChanged((user) => {
 db.collection('users').orderBy("sessionWins", "desc").onSnapshot(snapshot => {
     let changes = snapshot.docChanges();
     changes.forEach((change) => {
-        if (change.type == "added") {
 
-            let tr = document.createElement('tr');
-            tr.setAttribute("data-tr-id", change.doc.id);
-            let tdName = document.createElement('td');
-            let tdwinRate = document.createElement('td');
-            let tdGames = document.createElement('td');
-            let tdWins = document.createElement('td');
+        if (change.doc.data().isOnline) {
 
-            tdName.innerHTML = change.doc.data().fullname;
-            if (change.doc.data().sessionGames != 0 && change.doc.data().sessionWins != 0) {
-                tdwinRate.innerHTML = `${((change.doc.data().sessionWins / change.doc.data().sessionGames) * 100).toFixed(1)}%`
+            if (change.type == "added") {
+
+                let tr = document.createElement('tr');
+                tr.setAttribute("data-tr-id", change.doc.id);
+                let tdName = document.createElement('td');
+                let tdwinRate = document.createElement('td');
+                let tdGames = document.createElement('td');
+                let tdWins = document.createElement('td');
+
+                tdName.innerHTML = change.doc.data().fullname;
+                if (change.doc.data().sessionGames != 0 && change.doc.data().sessionWins != 0) {
+                    tdwinRate.innerHTML = `${((change.doc.data().sessionWins / change.doc.data().sessionGames) * 100).toFixed(1)}%`
+                }
+                else {
+                    tdwinRate.innerHTML = `0%`;
+                }
+
+                tdGames.innerHTML = change.doc.data().sessionGames;
+                tdWins.innerHTML = change.doc.data().sessionWins;
+
+
+                scoreboardTableElement.appendChild(tr);
+                tr.appendChild(tdName);
+                tr.appendChild(tdwinRate);
+                tr.appendChild(tdGames);
+                tr.appendChild(tdWins);
+
             }
-            else {
-                tdwinRate.innerHTML = `0%`;
+
+            if (change.type == "modified") {
+
+                let trToChange = scoreboardTableElement.querySelector(`[data-tr-id=${change.doc.id}]`);
+                console.log(trToChange);
+
+                if (trToChange == undefined) { // If there are no trToChange with the querySelected doc.id, then the tr element hasn't been created, so then we create it.
+
+                    let tr = document.createElement('tr');
+                    tr.setAttribute("data-tr-id", change.doc.id);
+                    let tdName = document.createElement('td');
+                    let tdwinRate = document.createElement('td');
+                    let tdGames = document.createElement('td');
+                    let tdWins = document.createElement('td');
+
+                    tdName.innerHTML = change.doc.data().fullname;
+                    if (change.doc.data().sessionGames != 0 && change.doc.data().sessionWins != 0) {
+                        tdwinRate.innerHTML = `${((change.doc.data().sessionWins / change.doc.data().sessionGames) * 100).toFixed(1)}%`
+                    }
+                    else {
+                        tdwinRate.innerHTML = `0%`;
+                    }
+
+                    tdGames.innerHTML = change.doc.data().sessionGames;
+                    tdWins.innerHTML = change.doc.data().sessionWins;
+
+
+                    scoreboardTableElement.appendChild(tr);
+                    tr.appendChild(tdName);
+                    tr.appendChild(tdwinRate);
+                    tr.appendChild(tdGames);
+                    tr.appendChild(tdWins);
+
+                    trToChange = tr; // put tr into trToChange so that the if and else statements below has the right element.
+                }
+
+                if (change.doc.data().sessionGames != 0 && change.doc.data().sessionWins != 0) {
+                    trToChange.children[1].innerHTML = `${((change.doc.data().sessionWins / change.doc.data().sessionGames) * 100).toFixed(1)}%`
+                }
+                else {
+                    trToChange.children[1].innerHTML = `0%`;
+                }
+
+                trToChange.children[2].innerHTML = change.doc.data().sessionGames;
+                trToChange.children[3].innerHTML = change.doc.data().sessionWins;
+
+
+
             }
 
-            tdGames.innerHTML = change.doc.data().sessionGames;
-            tdWins.innerHTML = change.doc.data().sessionWins;
+            if (change.type == "removed") {
+                scoreboardTableElement.querySelector(`[data-tr-id=${change.doc.id}]`).remove();
 
-
-            scoreboardTableElement.appendChild(tr);
-            tr.appendChild(tdName);
-            tr.appendChild(tdwinRate);
-            tr.appendChild(tdGames);
-            tr.appendChild(tdWins);
+            }
 
         }
-        if (change.type == "modified") {
+
+        else {
+
             let trToChange = scoreboardTableElement.querySelector(`[data-tr-id=${change.doc.id}]`);
+            if (trToChange != undefined) {
 
-            if (change.doc.data().sessionGames != 0 && change.doc.data().sessionWins != 0) {
-                trToChange.children[1].innerHTML = `${((change.doc.data().sessionWins / change.doc.data().sessionGames) * 100).toFixed(1)}%`
-            }
-            else {
-                trToChange.children[1].innerHTML = `0%`;
+                trToChange.remove();
             }
 
-            trToChange.children[2].innerHTML = change.doc.data().sessionGames;
-            trToChange.children[3].innerHTML = change.doc.data().sessionWins;
-
-
-        }
-
-        if (change.type == "removed") {
-            scoreboardTableElement.querySelector(`[data-tr-id=${change.doc.id}]`).remove();
 
         }
     })
-    
+
     sortScoreboard();
 
 }) // snapshot Ends
@@ -417,8 +472,8 @@ makeRulle3();
 
 // EventListeners Section Start.
 
-bodyElement.addEventListener('mouseleave',()=>{
-    clearingAutoInterval();     
+bodyElement.addEventListener('mouseleave', () => {
+    clearingAutoInterval();
 });
 
 coinDepositElement.addEventListener('focusin', () => {
@@ -468,6 +523,7 @@ gameInfoBtnElement.addEventListener('click', () => {
     gameOverlayElement.style.display = "flex";
     currentlySpinning = true;
     contentWrapperElement.style.opacity = 0;
+    gameResultContainerElement.style.opacity = 0;
     if (autoSpinInterval != null) {
         autoPlayWhileOverlayActivated = true;
     }
@@ -477,6 +533,7 @@ gameInfoBtnElement.addEventListener('click', () => {
 gameOverlayElement.addEventListener('click', () => {
     gameOverlayElement.style.display = "none";
     contentWrapperElement.style.opacity = 1;
+    gameResultContainerElement.style.opacity = 1;
     if (autoSpinInterval == null && autoPlayWhileOverlayActivated == false) { // If the interval is null, then the machine is not running, and if the machine is not running, the winOrLose function wont set currentlySpinning to false, so then this click should do it.
         currentlySpinning = false;
     }
@@ -485,6 +542,10 @@ gameOverlayElement.addEventListener('click', () => {
 prizeDisplayElement.addEventListener('click', (event) => {
     event.stopPropagation();
 });
+
+gameGuideDisplayElement.addEventListener('click', (event) => {
+    event.stopPropagation();
+})
 
 holdRulle1BtnElement.addEventListener('click', (event) => {
     holdRulle1();
@@ -905,11 +966,12 @@ function closingCode() {
     db.collection('users').doc(auth.currentUser.uid).update({
         sessionGames: 0,
         sessionWins: 0,
+        isOnline: false,
     })
 }
 
 
-function sortScoreboard(){
+function sortScoreboard() {
     let switching, i, x, y, shouldSwitch;
     switching = true;
     /* Make a loop that will continue until
