@@ -69,7 +69,7 @@ updateCoinAndSpinCount();
 // auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
 auth.onAuthStateChanged((user) => {
     if (user == null) {
-        if(unsubscribePlayerWhenLoggedOff != undefined){
+        if (unsubscribePlayerWhenLoggedOff != undefined) {
             unsubscribePlayerWhenLoggedOff(); // stop the scoreboard Snapshot when the user is not logged in
         }
         bodyElement.classList.remove('body-display');
@@ -150,7 +150,7 @@ auth.onAuthStateChanged((user) => {
                         sessionWins: 0,
                         sessionWinnings: 0,
                         isOnline: true,
-                        
+
 
 
                     })
@@ -193,7 +193,7 @@ auth.onAuthStateChanged((user) => {
         contentWrapperElement.classList.add('content-wrapper-logged-in');
 
         db.collection('users').doc(user.uid).update({
-            isOnline: true
+            isOnline: true,
         });
 
         db.collection('users').doc(user.uid).get()
@@ -202,6 +202,14 @@ auth.onAuthStateChanged((user) => {
                 freeSpinCount = userData.data().freespin;
                 gameCount = userData.data().sessionGames;
                 winCount = userData.data().sessionWins;
+
+                if(userData.data().sessionWinnings == undefined && userData.data().lifeTimeWinnings == undefined){
+                    db.collection('users').doc(user.uid).update({
+                        sessionWinnings: 0,
+                        lifeTimeWinnings: 0,
+                    })
+                    
+                }
 
                 // if (gameCount != 0 && winCount != 0) {
                 //     // winRateDisplayElement.innerHTML = `Win-rate: ${((winCount / gameCount) * 100).toFixed(1)}%`;
@@ -942,18 +950,19 @@ function updateSessionDb(userUid) {
         coin: coins,
         freespin: freeSpinCount,
         sessionGames: gameCount,
-        sessionWins: winCount 
+        sessionWins: winCount
     });
 }
 
-function updateWinningsDb(userUid){
+function updateWinningsDb(userUid) {
     db.collection('users').doc(userUid).get()
-    .then((userData)=>{
-        db.collection('users').doc(userUid).update({
-            sessionWinnings: userData.data().sessionWinnings + rulle2Center.value,
-            lifeTimeWinnings: userData.data().lifeTimeWinnings + rulle2Center.value
+        .then((userData) => {
+            db.collection('users').doc(userUid).update({
+                sessionWinnings: (userData.data().sessionWinnings != undefined ? userData.data().sessionWinnings + rulle2Center.value : rulle2Center.value),
+                lifeTimeWinnings: (userData.data().lifeTimeWinnings != undefined ? userData.data().lifeTimeWinnings + rulle2Center.value : rulle2Center.value)
+            })
+
         })
-    })
 }
 
 function updateLifeTimeWinDb(userUid) {
