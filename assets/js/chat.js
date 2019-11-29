@@ -88,7 +88,12 @@ function renderChatMessage(data) {
             messageTime = `(${months[postDate.getMonth()]} ${postDate.getDate()}.  ${postHour}:${postMinute})`
         }
     } else {
-        messageTime = `(${days[postDate.getDay()]}, ${postHour}:${postMinute})`
+        if (postDate.getDate() < currentDate.getDate() - 7) {
+
+            messageTime = `(${days[postDate.getDay()]}, ${postHour}:${postMinute})`
+        } else {
+            messageTime = `(${days[postDate.getDay()]} ${postDate.getDate()}, ${postHour}:${postMinute})`
+        }
     }
 
     clone.querySelector(".chat-message__timesent").textContent = messageTime;
@@ -109,7 +114,7 @@ function renderChatMessage(data) {
     }
     if (newMessage == true) {
         let message = data.doc.data().message.toLowerCase()
-        if(data.doc.data().message.includes(`@${userinfo.fullname.toLowerCase()}`)){   
+        if (data.doc.data().message.includes(`@${userinfo.fullname.toLowerCase()}`)) {
             sendNotification(data.userDoc.data().imagePath, data.doc.data().message, data.userDoc.data().fullname)
         }
     }
@@ -118,16 +123,18 @@ function renderChatMessage(data) {
 function sendNotification(userImg, msg, name) {
     Notification.requestPermission().then(function (permission) {
         // If the user accepts, let's create a notification
-        if (permission === "granted") {
-            var notification = new Notification(
-                "New Message!",
-                {
-                    "body": `${name}: ${msg}`,
-                    "icon": userImg,
-                    "vibrate": [200, 100, 200, 100, 200, 100, 400],
-                    "tag": "request",
-                }
-            );
+        if (!document.hasFocus()) {
+            if (permission === "granted") {
+                var notification = new Notification(
+                    "New Message!",
+                    {
+                        "body": `${name}: ${msg}`,
+                        "icon": userImg,
+                        "vibrate": [200, 100, 200, 100, 200, 100, 400],
+                        "tag": "request",
+                    }
+                );
+            }
         }
     })
 }
