@@ -29,6 +29,7 @@ let holdRulle2BtnElement = document.querySelector('.hold-rulle2');
 let holdRulle3BtnElement = document.querySelector('.hold-rulle3');
 let scoreboardTableElement = document.querySelector('.scoreboard-container tbody');
 let scoreboardWinRateToggleElement = document.querySelector('.table-winrate');
+let unsubscribePlayerWhenLoggedOff;
 // Reference Section Ends.
 
 // Conditions Section Starts.
@@ -68,6 +69,9 @@ updateCoinAndSpinCount();
 // auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
 auth.onAuthStateChanged((user) => {
     if (user == null) {
+        if(unsubscribePlayerWhenLoggedOff != undefined){
+            unsubscribePlayerWhenLoggedOff(); // stop the scoreboard Snapshot when the user is not logged in
+        }
         bodyElement.classList.remove('body-display');
         currentlySpinning = true;
         controlsElement.id = "hidden";
@@ -141,9 +145,12 @@ auth.onAuthStateChanged((user) => {
                         freespin: 0,
                         lifeTimeGames: 0,
                         lifeTimeWins: 0,
+                        lifeTimeWinnings: 0,
                         sessionGames: 0,
                         sessionWins: 0,
+                        sessionWinnings: 0,
                         isOnline: true,
+                        
 
 
                     })
@@ -212,14 +219,50 @@ auth.onAuthStateChanged((user) => {
 });
 
 
+unsubscribePlayerWhenLoggedOff = db.collection('users').orderBy("sessionWins", "desc").onSnapshot(snapshot => {
+    let changes = snapshot.docChanges();
+    changes.forEach((change) => {
 
-    db.collection('users').orderBy("sessionWins", "desc").onSnapshot(snapshot => {
-        let changes = snapshot.docChanges();
-        changes.forEach((change) => {
+        if (change.doc.data().isOnline) {
 
-            if (change.doc.data().isOnline) {
+            if (change.type == "added") {
 
-                if (change.type == "added") {
+                let tr = document.createElement('tr');
+                tr.setAttribute("data-tr-id", change.doc.id);
+                let tdName = document.createElement('td');
+                let tdwinRate = document.createElement('td');
+                let tdGames = document.createElement('td');
+                let tdWins = document.createElement('td');
+                let tdWinnings = document.createElement('td');
+
+                tdName.innerHTML = change.doc.data().fullname;
+                if (change.doc.data().sessionGames != 0 && change.doc.data().sessionWins != 0) {
+                    tdwinRate.innerHTML = `${((change.doc.data().sessionWins / change.doc.data().sessionGames) * 100).toFixed(1)}%`
+                }
+                else {
+                    tdwinRate.innerHTML = `0%`;
+                }
+
+                tdGames.innerHTML = change.doc.data().sessionGames;
+                tdWins.innerHTML = change.doc.data().sessionWins;
+                tdWinnings.innerHTML = change.doc.data().sessionWinnings;
+
+
+                scoreboardTableElement.appendChild(tr);
+                tr.appendChild(tdName);
+                tr.appendChild(tdwinRate);
+                tr.appendChild(tdGames);
+                tr.appendChild(tdWins);
+                tr.appendChild(tdWinnings);
+
+            }
+
+            if (change.type == "modified") {
+
+                let trToChange = scoreboardTableElement.querySelector(`[data-tr-id=${change.doc.id}]`);
+                console.log(trToChange);
+
+                if (trToChange == undefined) { // If there are no trToChange with the querySelected doc.id, then the tr element hasn't been created, so then we create it.
 
                     let tr = document.createElement('tr');
                     tr.setAttribute("data-tr-id", change.doc.id);
@@ -227,6 +270,7 @@ auth.onAuthStateChanged((user) => {
                     let tdwinRate = document.createElement('td');
                     let tdGames = document.createElement('td');
                     let tdWins = document.createElement('td');
+                    let tdWinnings = document.createElement('td');
 
                     tdName.innerHTML = change.doc.data().fullname;
                     if (change.doc.data().sessionGames != 0 && change.doc.data().sessionWins != 0) {
@@ -238,6 +282,7 @@ auth.onAuthStateChanged((user) => {
 
                     tdGames.innerHTML = change.doc.data().sessionGames;
                     tdWins.innerHTML = change.doc.data().sessionWins;
+                    tdWinnings.innerHTML = change.doc.data().sessionWinnings;
 
 
                     scoreboardTableElement.appendChild(tr);
@@ -245,80 +290,48 @@ auth.onAuthStateChanged((user) => {
                     tr.appendChild(tdwinRate);
                     tr.appendChild(tdGames);
                     tr.appendChild(tdWins);
+                    tr.appendChild(tdWinnings);
 
+                    trToChange = tr; // put tr into trToChange so that the if and else statements below has the right element.
                 }
 
-                if (change.type == "modified") {
-
-                    let trToChange = scoreboardTableElement.querySelector(`[data-tr-id=${change.doc.id}]`);
-                    console.log(trToChange);
-
-                    if (trToChange == undefined) { // If there are no trToChange with the querySelected doc.id, then the tr element hasn't been created, so then we create it.
-
-                        let tr = document.createElement('tr');
-                        tr.setAttribute("data-tr-id", change.doc.id);
-                        let tdName = document.createElement('td');
-                        let tdwinRate = document.createElement('td');
-                        let tdGames = document.createElement('td');
-                        let tdWins = document.createElement('td');
-
-                        tdName.innerHTML = change.doc.data().fullname;
-                        if (change.doc.data().sessionGames != 0 && change.doc.data().sessionWins != 0) {
-                            tdwinRate.innerHTML = `${((change.doc.data().sessionWins / change.doc.data().sessionGames) * 100).toFixed(1)}%`
-                        }
-                        else {
-                            tdwinRate.innerHTML = `0%`;
-                        }
-
-                        tdGames.innerHTML = change.doc.data().sessionGames;
-                        tdWins.innerHTML = change.doc.data().sessionWins;
-
-
-                        scoreboardTableElement.appendChild(tr);
-                        tr.appendChild(tdName);
-                        tr.appendChild(tdwinRate);
-                        tr.appendChild(tdGames);
-                        tr.appendChild(tdWins);
-
-                        trToChange = tr; // put tr into trToChange so that the if and else statements below has the right element.
-                    }
-
-                    if (change.doc.data().sessionGames != 0 && change.doc.data().sessionWins != 0) {
-                        trToChange.children[1].innerHTML = `${((change.doc.data().sessionWins / change.doc.data().sessionGames) * 100).toFixed(1)}%`
-                    }
-                    else {
-                        trToChange.children[1].innerHTML = `0%`;
-                    }
-
-                    trToChange.children[2].innerHTML = change.doc.data().sessionGames;
-                    trToChange.children[3].innerHTML = change.doc.data().sessionWins;
-
-
-
+                if (change.doc.data().sessionGames != 0 && change.doc.data().sessionWins != 0) {
+                    trToChange.children[1].innerHTML = `${((change.doc.data().sessionWins / change.doc.data().sessionGames) * 100).toFixed(1)}%`
+                }
+                else {
+                    trToChange.children[1].innerHTML = `0%`;
                 }
 
-                if (change.type == "removed") {
-                    scoreboardTableElement.querySelector(`[data-tr-id=${change.doc.id}]`).remove();
+                trToChange.children[2].innerHTML = change.doc.data().sessionGames;
+                trToChange.children[3].innerHTML = change.doc.data().sessionWins;
+                trToChange.children[4].innerHTML = change.doc.data().sessionWinnings;
 
-                }
+
 
             }
 
-            else {
-
-                let trToChange = scoreboardTableElement.querySelector(`[data-tr-id=${change.doc.id}]`);
-                if (trToChange != undefined) {
-
-                    trToChange.remove();
-                }
-
+            if (change.type == "removed") {
+                scoreboardTableElement.querySelector(`[data-tr-id=${change.doc.id}]`).remove();
 
             }
-        })
 
-        sortScoreboard();
+        }
 
-    }) // snapshot Ends
+        else {
+
+            let trToChange = scoreboardTableElement.querySelector(`[data-tr-id=${change.doc.id}]`);
+            if (trToChange != undefined) {
+
+                trToChange.remove();
+            }
+
+
+        }
+    })
+
+    sortScoreboard();
+
+}) // snapshot Ends
 {
     // let Data = [
     // 	{
@@ -888,6 +901,7 @@ function winOrLose() {
         audioElement.volume = 0.1;
         updateCoinAndSpinCount();
         updateLifeTimeWinDb(auth.currentUser.uid);
+        updateWinningsDb(auth.currentUser.uid);
 
     }
 
@@ -928,16 +942,27 @@ function updateSessionDb(userUid) {
         coin: coins,
         freespin: freeSpinCount,
         sessionGames: gameCount,
-        sessionWins: winCount
+        sessionWins: winCount 
     });
 }
 
+function updateWinningsDb(userUid){
+    db.collection('users').doc(userUid).get()
+    .then((userData)=>{
+        db.collection('users').doc(userUid).update({
+            sessionWinnings: userData.data().sessionWinnings + rulle2Center.value,
+            lifeTimeWinnings: userData.data().lifeTimeWinnings + rulle2Center.value
+        })
+    })
+}
+
 function updateLifeTimeWinDb(userUid) {
+    console.log(rulle2Center.value);
     db.collection('users').doc(userUid).get()
         .then((userData) => {
             db.collection('users').doc(userUid).update({
                 lifeTimeWins: userData.data().lifeTimeWins + 1,
-                lifeTimeGames: userData.data().lifeTimeGames + 1
+                lifeTimeGames: userData.data().lifeTimeGames + 1,
             });
         })
 }
@@ -966,6 +991,7 @@ function closingCode() {
     db.collection('users').doc(auth.currentUser.uid).update({
         sessionGames: 0,
         sessionWins: 0,
+        sessionWinnings: 0,
         isOnline: false,
     })
 }
@@ -987,8 +1013,8 @@ function sortScoreboard() {
             shouldSwitch = false;
             /* Get the two elements you want to compare,
             one from current row and one from the next: */
-            x = parseInt(scoreboardTableElement.rows[i].children[3].textContent);
-            y = parseInt(scoreboardTableElement.rows[i + 1].children[3].textContent);
+            x = parseInt(scoreboardTableElement.rows[i].children[4].textContent);
+            y = parseInt(scoreboardTableElement.rows[i + 1].children[4].textContent);
             // Check if the two rows should switch place:
             if (x < y) {
                 // If so, mark as a switch and break the loop:
@@ -1003,11 +1029,10 @@ function sortScoreboard() {
             switching = true;
         }
     }
-    if(auth.currentUser != null){
-        console.log("THis is user",auth.currentUser)
-    let colorCurrentUserOnScoreboard = scoreboardTableElement.querySelector(`[data-tr-id=${auth.currentUser.uid}]`);
+    if (auth.currentUser != null) {
+        let colorCurrentUserOnScoreboard = scoreboardTableElement.querySelector(`[data-tr-id=${auth.currentUser.uid}]`);
 
-    colorCurrentUserOnScoreboard.classList.add('color-user-on-scoreboard');
+        colorCurrentUserOnScoreboard.classList.add('color-user-on-scoreboard');
     }
 }
     // Function Definition Section Ends.

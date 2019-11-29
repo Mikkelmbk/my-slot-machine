@@ -239,6 +239,10 @@
 		border: none;
 		color: black;
 	}
+
+	.profile-page{
+		all:unset;
+	}
 	.betal-mønter, .start-btn, .auto-btn, .logout-btn, .toggle-forms-btn, .login-btn, .opret-btn, .game-info,.profile-page{
 		border: none;
 		border-radius: 4px;
