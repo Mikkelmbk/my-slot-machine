@@ -88,7 +88,12 @@ function renderChatMessage(data) {
             messageTime = `(${months[postDate.getMonth()]} ${postDate.getDate()}.  ${postHour}:${postMinute})`
         }
     } else {
-        messageTime = `(${days[postDate.getDay()]}, ${postHour}:${postMinute})`
+        if (postDate.getDate() < currentDate.getDate() - 7) {
+
+            messageTime = `(${days[postDate.getDay()]}, ${postHour}:${postMinute})`
+        } else {
+            messageTime = `(${days[postDate.getDay()]} ${postDate.getDate()}, ${postHour}:${postMinute})`
+        }
     }
 
     clone.querySelector(".chat-message__timesent").textContent = messageTime;
