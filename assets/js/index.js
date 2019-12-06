@@ -98,6 +98,10 @@
     // auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
     auth.onAuthStateChanged((user) => {
         if (user == null) {
+
+            sessionStorage.clear();
+            console.log(sessionStorage.getItem('userId'));
+
             chatFormElem.chatFormMessage.disabled = true;
             chatFormElem.chatFormButton.disabled = true;
             chatFormElem.chatFormMessage.placeholder = "Please login to type in the chat";
@@ -221,6 +225,10 @@
 
         } //user null check ends
         else {
+
+            if(sessionStorage.getItem('userId') == null){
+                closingCode();
+            }
             chatFormElem.chatFormMessage.disabled = false;
             chatFormElem.chatFormButton.disabled = false;
             chatFormElem.chatFormMessage.placeholder = "Message...";
@@ -279,6 +287,12 @@
                 })
 
         }
+        // if(sessionStorage.getItem('userId') == null){
+        //     closingCode();
+        // }
+
+        sessionStorage.setItem('userId',user.uid);
+        console.log(sessionStorage.getItem('userId'));
 
     });
 
