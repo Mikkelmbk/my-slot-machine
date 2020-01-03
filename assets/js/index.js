@@ -1,4 +1,4 @@
-(function () {
+// (function () {
 
     // Reference Section Starts.
     let bodyElement = document.querySelector('body');
@@ -171,10 +171,15 @@
             let opretFormElement = document.querySelector('.opretForm');
             opretFormElement.addEventListener('submit', (event) => {
                 event.preventDefault();
+
                 const email = opretFormElement.Email.value;
                 const name = opretFormElement.Username.value;
                 const password = opretFormElement.Password.value;
 
+                // if(opretFormElement.Username.value.length < 12){
+                //     name = opretFormElement.Username.value;
+                // }
+                
                 auth.createUserWithEmailAndPassword(email, password)
                     .then((cred) => {
                         return db.collection('users').doc(cred.user.uid).set({
@@ -188,9 +193,6 @@
                             sessionWins: 0,
                             sessionWinnings: 0,
                             isOnline: true,
-
-
-
                         })
                     })
                     .then(() => {
@@ -227,7 +229,7 @@
         } //user null check ends
         else {
 
-            if(sessionStorage.getItem('userId') == null){ // if sessionStorage key userId is null, then run closingCode
+            if (sessionStorage.getItem('userId') == null) { // if sessionStorage key userId is null, then run closingCode
                 closingCode();
             }
             chatFormElem.chatFormMessage.disabled = false;
@@ -276,10 +278,6 @@
 
                     }
 
-                    // if (gameCount != 0 && winCount != 0) {
-                    //     // winRateDisplayElement.innerHTML = `Win-rate: ${((winCount / gameCount) * 100).toFixed(1)}%`;
-                    // }
-                    // gameCountDisplayElement.innerHTML = `T: ${userData.data().sessionGames} | L: ${(userData.data().sessionGames - userData.data().sessionWins)} | W: ${userData.data().sessionWins}`;
                     updateCoinAndSpinCount();
                     currentlySpinning = false;
                 })
@@ -288,11 +286,8 @@
                 })
 
         }
-        // if(sessionStorage.getItem('userId') == null){
-        //     closingCode();
-        // }
 
-        sessionStorage.setItem('userId',user.uid);
+        sessionStorage.setItem('userId', user.uid);
         console.log(sessionStorage.getItem('userId'));
 
     });
@@ -611,17 +606,20 @@
         clearingAutoInterval();
     });
 
+    // coinInputFieldHasFocus, focusin, focusout eventlisteners
+    {
     // coinDepositElement.addEventListener('focusin', () => {
     //     coinInputFieldHasFocus = true;
     // });
     // coinDepositElement.addEventListener('focusout', () => {
     //     coinInputFieldHasFocus = false;
     // });
+    }
 
-    chatFormInputElem.addEventListener('focusin',()=>{
+    chatFormInputElem.addEventListener('focusin', () => {
         coinInputFieldHasFocus = true;
     });
-    chatFormInputElem.addEventListener('focusout',()=>{
+    chatFormInputElem.addEventListener('focusout', () => {
         coinInputFieldHasFocus = false;
     });
 
@@ -633,10 +631,15 @@
 
     window.onbeforeunload = closingCode;
 
+
+    // eventlistener på mønt indkast knap
+    {
     // depositCoinBtnElement.addEventListener('click', () => {
     //     depositCoins();
     // eventlistener på knap til mønt indkast, kalder depositCoins funktionen.
     // });
+    }
+
     resetSessionBtnElement.addEventListener('click', () => {
         restartSession();
     });
@@ -799,7 +802,10 @@
         });
     }
 
-    // function depositCoins() { // Funktion til at styre hvis der skal være mønt indkast i form af input element
+    // Funktion til at styre hvis der skal være mønt indkast i form af input element
+    {
+    // function depositCoins() { 
+    
     //     if (!isNaN(parseInt(coinDepositElement.value))) {
     //         coins += parseInt(coinDepositElement.value);
     //         coinDepositElement.value = "";
@@ -816,33 +822,48 @@
     //     }
     //     coinDepositElement.blur();
     // }
-
+    }
 
     function restartSession() {
-        resetSessionBtnElement.blur();
-        gameResultElement.innerHTML = "Restarted Session";
-        coins = 200;
-        freeSpinCount = 0;
-        winCount = 0;
-        gameCount = 0;
-        updateCoinAndSpinCount();
-        db.collection('users').doc(auth.currentUser.uid).update({
-            coin: coins,
-            freespin: freeSpinCount,
-            sessionGames: 0,
-            sessionWins: 0,
-            sessionWinnings: 0
-        });
+        if (!currentlySpinning) {
+            resetSessionBtnElement.blur();
+            gameResultElement.innerHTML = "Restarted Session";
+            coins = 200;
+            freeSpinCount = 0;
+            winCount = 0;
+            gameCount = 0;
+            updateCoinAndSpinCount();
+            db.collection('users').doc(auth.currentUser.uid).update({
+                coin: coins,
+                freespin: freeSpinCount,
+                sessionGames: 0,
+                sessionWins: 0,
+                sessionWinnings: 0
+            });
+            if(holdRulle1Boolean){
+                holdRulle1();
+            }
+            if(holdRulle2Boolean){
+                holdRulle2();
+            }
+            if(holdRulle3Boolean){
+                holdRulle3();
+            }
+        }
+        rulleWasHeldLastSpin = true;
     }
 
     function keyPress(e) {
         if (e.keyCode == 32 && !currentlySpinning && !coinInputFieldHasFocus) {
             userInitiatedMachine();
         }
+
+        // coinInputFieldHasFocus check (enter)
+        {
         // if (e.keyCode == 13 && coinInputFieldHasFocus) {
         //     depositCoins();
-        // coinInputFieldHasFocus check (enter)
         // }
+        }
 
         if (e.keyCode == 13) {
             restartSession();
@@ -988,7 +1009,7 @@
             startSpinning(rulle1Index, rulle2Index, rulle3Index);
         }
         else {
-            gameResultElement.innerHTML = "Insert more money to continue playing!";
+            gameResultElement.innerHTML = "You've run out of coins! Start new session to play";
             setTimeout(() => {
                 coinDepositElement.focus();
                 clearingAutoInterval();
@@ -1058,6 +1079,7 @@
             updateCoinAndSpinCount();
             updateLifeTimeWinDb(auth.currentUser.uid);
             updateWinningsDb(auth.currentUser.uid);
+            rulleWasHeldLastSpin = true;
 
         }
 
@@ -1084,10 +1106,6 @@
             gameResultElement.innerHTML = "You lost, try again!";
             updateLifeTimeGameDb(auth.currentUser.uid);
         }
-        // if (gameCount / winCount != Infinity) {
-        //     // winRateDisplayElement.innerHTML = `Win-rate: ${((winCount / gameCount) * 100).toFixed(1)}%`;
-        // }
-        // // gameCountDisplayElement.innerHTML = `T: ${gameCount} | L: ${(gameCount - winCount)} | W: ${winCount}`;
 
         currentlySpinning = false;
         updateSessionDb(auth.currentUser.uid);
@@ -1192,7 +1210,7 @@
             colorCurrentUserOnScoreboard.classList.add('color-user-on-scoreboard');
         }
     }
-    
+
     function sortMessageArray(messagedocs) {
         messagedocs.sort((a, b) => (a.doc.data().postTime > b.doc.data().postTime) ? 1 : -1)
         messagedocs.forEach(data => {
@@ -1200,13 +1218,13 @@
         });
         newMessage = true;
     }
-    
+
     function renderChatMessage(data) {
         let clone = chatMessageTemplateElem.cloneNode(true);
-        
+
         clone.setAttribute("data-id", data.doc.id);
         clone.querySelector(".chat-message__message").textContent = data.doc.data().message;
-        
+
         let postDate = new Date(data.doc.data().postTime);
         let postHour = postDate.getHours();
         if (postHour < 10) {
@@ -1216,7 +1234,7 @@
         if (postMinute < 10) {
             postMinute = `0${postMinute}`;
         }
-        
+
         let removeBtn = clone.querySelector(".chat-message__removebtn");
         if (data.userDoc.id == auth.currentUser.uid) {
             removeBtn.addEventListener("click", () => {
@@ -1229,7 +1247,7 @@
         let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         let currentDate = new Date();
         let messageTime = "";
-        
+
         if (postDate.getDate() == currentDate.getDate()) {
             if (postDate.getMonth() == currentDate.getMonth()) {
                 if (postDate.getFullYear() == currentDate.getFullYear()) {
@@ -1242,15 +1260,15 @@
             }
         } else {
             if (postDate.getDate() < currentDate.getDate() - 7) {
-                
+
                 messageTime = `(${days[postDate.getDay()]}, ${postHour}:${postMinute})`;
             } else {
                 messageTime = `(${days[postDate.getDay()]} ${postDate.getDate()}, ${postHour}:${postMinute})`;
             }
         }
-        
+
         clone.querySelector(".chat-message__timesent").textContent = messageTime;
-        
+
         if (data.userDoc.data() != undefined) {
             if (data.userDoc.data().imagePath != null) {
                 clone.querySelector(".chat-message__userimg").src = data.userDoc.data().imagePath;
@@ -1258,7 +1276,7 @@
             clone.querySelector(".chat-message__author").textContent = data.userDoc.data().fullname;
             chatMessageContainerElem.appendChild(clone);
             let messages = chatMessageContainerElem.querySelectorAll(".chat-message");
-            
+
             if (messages[messages.length - 1].offsetTop - chatMessageContainerElem.scrollTop < 800) {
                 chatMessageContainerElem.scrollTop = messages[messages.length - 1].offsetTop;
             }
@@ -1272,7 +1290,7 @@
             }
         }
     }
-    
+
     function sendNotification(userImg, msg, name) {
         Notification.requestPermission().then(function (permission) {
             // If the user accepts, let's create a notification
@@ -1286,22 +1304,22 @@
                             "vibrate": [200, 100, 200, 100, 200, 100, 400],
                             "tag": "request",
                         }
-                        );
-                    }
+                    );
                 }
-            })
-        }
-        
-        
-        function updateInputSelection() {
-            inputStart = chatFormElem.chatFormMessage.selectionStart;
-            inputEnd = chatFormElem.chatFormMessage.selectionEnd;
-        }
-        
-        
-        // Function Definition Section Ends.
-        
-        
-        
-    }());
-    
+            }
+        })
+    }
+
+
+    function updateInputSelection() {
+        inputStart = chatFormElem.chatFormMessage.selectionStart;
+        inputEnd = chatFormElem.chatFormMessage.selectionEnd;
+    }
+
+
+    // Function Definition Section Ends.
+
+
+
+// }());
+
