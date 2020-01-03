@@ -12,7 +12,8 @@
     let gameGuideDisplayElement = document.querySelector('.game-guide');
     let startBtnElement = document.querySelector('.start-btn');
     let autoBtnElement = document.querySelector('.auto-btn');
-    let depositCoinBtnElement = document.querySelector('.betal-mønter');
+    // let depositCoinBtnElement = document.querySelector('.betal-mønter');
+    let resetSessionBtnElement = document.querySelector('.new-session-btn');
     let coinDepositElement = document.querySelector('.mønt-indkast');
     let rulle1Element = document.querySelector('.rulle1');
     let coinsElement = document.querySelector('.mønter');
@@ -99,7 +100,7 @@
     auth.onAuthStateChanged((user) => {
         if (user == null) {
 
-            sessionStorage.clear();
+            sessionStorage.clear(); // clear sessionStorage if user is null.
             console.log(sessionStorage.getItem('userId'));
 
             chatFormElem.chatFormMessage.disabled = true;
@@ -226,7 +227,7 @@
         } //user null check ends
         else {
 
-            if(sessionStorage.getItem('userId') == null){
+            if(sessionStorage.getItem('userId') == null){ // if sessionStorage key userId is null, then run closingCode
                 closingCode();
             }
             chatFormElem.chatFormMessage.disabled = false;
@@ -610,12 +611,12 @@
         clearingAutoInterval();
     });
 
-    coinDepositElement.addEventListener('focusin', () => {
-        coinInputFieldHasFocus = true;
-    });
-    coinDepositElement.addEventListener('focusout', () => {
-        coinInputFieldHasFocus = false;
-    });
+    // coinDepositElement.addEventListener('focusin', () => {
+    //     coinInputFieldHasFocus = true;
+    // });
+    // coinDepositElement.addEventListener('focusout', () => {
+    //     coinInputFieldHasFocus = false;
+    // });
 
     chatFormInputElem.addEventListener('focusin',()=>{
         coinInputFieldHasFocus = true;
@@ -632,8 +633,12 @@
 
     window.onbeforeunload = closingCode;
 
-    depositCoinBtnElement.addEventListener('click', () => {
-        depositCoins();
+    // depositCoinBtnElement.addEventListener('click', () => {
+    //     depositCoins();
+    // eventlistener på knap til mønt indkast, kalder depositCoins funktionen.
+    // });
+    resetSessionBtnElement.addEventListener('click', () => {
+        restartSession();
     });
 
     document.addEventListener('keydown', keyPress);
@@ -794,30 +799,53 @@
         });
     }
 
-    function depositCoins() {
-        if (!isNaN(parseInt(coinDepositElement.value))) {
-            coins += parseInt(coinDepositElement.value);
-            coinDepositElement.value = "";
-            updateCoinAndSpinCount();
-            gameResultElement.innerHTML = "";
-            depositCoinBtnElement.blur();
-            coinDepositElement.style.backgroundColor = "white";
-            updateSessionDb(auth.currentUser.uid);
-        }
-        else {
-            depositCoinBtnElement.blur();
-            gameResultElement.innerHTML = "Only numbers are allowed";
-            coinDepositElement.style.backgroundColor = "red";
-        }
-        coinDepositElement.blur();
+    // function depositCoins() { // Funktion til at styre hvis der skal være mønt indkast i form af input element
+    //     if (!isNaN(parseInt(coinDepositElement.value))) {
+    //         coins += parseInt(coinDepositElement.value);
+    //         coinDepositElement.value = "";
+    //         updateCoinAndSpinCount();
+    //         gameResultElement.innerHTML = "";
+    //         depositCoinBtnElement.blur();
+    //         coinDepositElement.style.backgroundColor = "white";
+    //         updateSessionDb(auth.currentUser.uid);
+    //     }
+    //     else {
+    //         depositCoinBtnElement.blur();
+    //         gameResultElement.innerHTML = "Only numbers are allowed";
+    //         coinDepositElement.style.backgroundColor = "red";
+    //     }
+    //     coinDepositElement.blur();
+    // }
+
+
+    function restartSession() {
+        resetSessionBtnElement.blur();
+        gameResultElement.innerHTML = "Restarted Session";
+        coins = 200;
+        freeSpinCount = 0;
+        winCount = 0;
+        gameCount = 0;
+        updateCoinAndSpinCount();
+        db.collection('users').doc(auth.currentUser.uid).update({
+            coin: coins,
+            freespin: freeSpinCount,
+            sessionGames: 0,
+            sessionWins: 0,
+            sessionWinnings: 0
+        });
     }
 
     function keyPress(e) {
         if (e.keyCode == 32 && !currentlySpinning && !coinInputFieldHasFocus) {
             userInitiatedMachine();
         }
-        if (e.keyCode == 13 && coinInputFieldHasFocus) {
-            depositCoins();
+        // if (e.keyCode == 13 && coinInputFieldHasFocus) {
+        //     depositCoins();
+        // coinInputFieldHasFocus check (enter)
+        // }
+
+        if (e.keyCode == 13) {
+            restartSession();
         }
 
         if (e.keyCode == 49 && !holdRulle1BtnElement.disabled && !coinInputFieldHasFocus) {
@@ -1118,9 +1146,9 @@
 
     function closingCode() {
         db.collection('users').doc(auth.currentUser.uid).update({
-            sessionGames: 0,
-            sessionWins: 0,
-            sessionWinnings: 0,
+            // sessionGames: 0, // these 3 properties are disabled so that the session persists through refreshes and logouts, the session should ONLY refresh when the user clicks "New Session" on the UI.
+            // sessionWins: 0,
+            // sessionWinnings: 0,
             isOnline: false,
         })
     }
