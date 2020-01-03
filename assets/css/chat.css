@@ -80,12 +80,13 @@
 }
 
 .chat-header {
-    background-color: cadetblue;
+    background-color:#298EEA;
     padding: 1em .5em;
 }
 
 .chat-header h2 {
     margin: 0;
+    color:white;
 }
 
 .chat-messagecontainer {
