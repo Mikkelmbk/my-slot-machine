@@ -1,4 +1,4 @@
-// (function () {
+(function () {
 
     // Reference Section Starts.
     let bodyElement = document.querySelector('body');
@@ -849,8 +849,8 @@
             if(holdRulle3Boolean){
                 holdRulle3();
             }
+            rulleWasHeldLastSpin = true;
         }
-        rulleWasHeldLastSpin = true;
     }
 
     function keyPress(e) {
@@ -866,7 +866,7 @@
         }
 
         if (e.keyCode == 13) {
-            restartSession();
+            // restartSession();
         }
 
         if (e.keyCode == 49 && !holdRulle1BtnElement.disabled && !coinInputFieldHasFocus) {
@@ -1321,5 +1321,5 @@
 
 
 
-// }());
+}());
 
